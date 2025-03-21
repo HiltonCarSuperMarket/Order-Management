@@ -319,7 +319,7 @@ export default function LandingPage() {
               <Link href="/login">
                 <Button
                   variant="outline"
-                  className="border-white text-white hover:bg-white hover:text-white/90 text-lg px-8 py-6 dark:hover:text-white/90"
+                  className="border-white text-[#2C45AA] dark:text-white hover:bg-white hover:text-[#2C45AA]/90 text-lg px-8 py-6 dark:hover:text-white/90"
                 >
                   Register Order
                 </Button>
