@@ -1,5 +1,5 @@
 "use client";
-import { Car, Menu } from "lucide-react";
+import { Car, Menu, X } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { ThemeToggle } from "../theme-toggle";
@@ -30,11 +30,11 @@ const Navbar = () => {
           : "bg-transparent py-4"
       }`}
     >
-      <div className="container mx-auto px-4 flex justify-between items-center">
+      <div className="max-w-7xl  mx-auto w-full px-4 flex justify-between items-center">
         <Link href="/" className="flex items-center space-x-2">
           <Car className="h-8 w-8 text-[#2C45AA] dark:text-[#4e6cde]" />
-          <span className="font-bold text-xl text-[#2C45AA] dark:text-[#4e6cde]">
-            Hilton Car SuperMarket
+          <span className="font-bold text-xl text-[#2C45AA] dark:text-[#4e6cde] ">
+            Hilton Car <span className="hidden md:block"> SuperMarket </span>
           </span>
         </Link>
 
