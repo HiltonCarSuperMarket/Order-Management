@@ -96,7 +96,7 @@ export default function SignupPage() {
         <div className="w-full max-w-md">
           <div className="flex justify-between items-center mb-8">
             <Link
-              href="/"
+              href="/dashboard"
               className="inline-flex items-center text-[#2C45AA] hover:text-[#1a2f7a] dark:text-[#4e6cde] dark:hover:text-[#6a84e5]"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
