@@ -133,11 +133,11 @@ const Navbar = () => {
 
               {ADMIN_ROLE && (
                 <Link
-                  href="/create-user"
+                  href="/view-orders"
                   className="text-gray-700 hover:text-[#2C45AA] font-medium py-2 dark:text-gray-300 dark:hover:text-[#4e6cde]"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Create User
+                  View Orders
                 </Link>
               )}
               {role && (
