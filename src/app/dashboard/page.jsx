@@ -122,7 +122,7 @@ export default function LandingPage() {
             className="relative h-[300px] sm:h-[400px] lg:h-[500px] rounded-lg overflow-hidden shadow-2xl mt-4"
           >
             <Image
-              src="/hero.png"
+              src="/hero.jpg"
               alt="Order management dashboard"
               fill
               className="object-fill object-center"

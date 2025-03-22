@@ -44,13 +44,6 @@ export function ThemeToggle() {
           <Moon className="h-4 w-4" />
           <span>Dark</span>
         </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => setTheme("system")}
-          className="flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-        >
-          <Laptop className="h-4 w-4" />
-          <span>System</span>
-        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
