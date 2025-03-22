@@ -4,10 +4,21 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { ThemeToggle } from "../theme-toggle";
 import { AnimatePresence, motion } from "framer-motion";
+import useAuth from "@/hooks/use-auth";
+import { Button } from "../ui/button";
+import axios from "axios";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const router = useRouter();
+
+  const role = useAuth();
+
+  const ADMIN_ROLE = role === "ADMIN";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -21,6 +32,18 @@ const Navbar = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleLogout = async () => {
+    try {
+      await axios.get("/api/logout");
+      setMobileMenuOpen(false);
+      toast.success("Logout successful");
+      router.push("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      toast.error("Logout failed");
+    }
+  };
 
   return (
     <header
@@ -40,18 +63,20 @@ const Navbar = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-8">
-          <Link
-            href="/signup"
-            className="text-gray-700 hover:text-[#2C45AA] font-medium dark:text-gray-300 dark:hover:text-[#4e6cde]"
-          >
-            Create User
-          </Link>
-          <Link
-            href="/logout"
-            className="text-gray-700 hover:text-[#2C45AA] font-medium dark:text-gray-300 dark:hover:text-[#4e6cde]"
+          {ADMIN_ROLE && (
+            <Link
+              href="/signup"
+              className="text-gray-700 hover:text-[#2C45AA] font-medium dark:text-gray-300 dark:hover:text-[#4e6cde]"
+            >
+              Create User
+            </Link>
+          )}
+          <Button
+            className="text-white  bg-red-600  hover:bg-red-600/90 hover:text-white/90 font-medium dark:text-white dark:hover:text-white/90"
+            onClick={handleLogout}
           >
             Logout
-          </Link>
+          </Button>
           <ThemeToggle />
         </nav>
 
@@ -81,20 +106,21 @@ const Navbar = () => {
             className="md:hidden bg-white dark:bg-gray-900"
           >
             <div className="container mx-auto px-4 py-4 flex flex-col space-y-4">
-              <Link
-                href="/create-user"
-                className="text-gray-700 hover:text-[#2C45AA] font-medium py-2 dark:text-gray-300 dark:hover:text-[#4e6cde]"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Create User
-              </Link>
-              <Link
-                href="/logout"
-                className="text-gray-700 hover:text-[#2C45AA] font-medium py-2 dark:text-gray-300 dark:hover:text-[#4e6cde]"
-                onClick={() => setMobileMenuOpen(false)}
+              {ADMIN_ROLE && (
+                <Link
+                  href="/create-user"
+                  className="text-gray-700 hover:text-[#2C45AA] font-medium py-2 dark:text-gray-300 dark:hover:text-[#4e6cde]"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Create User
+                </Link>
+              )}
+              <Button
+                className="text-white  bg-red-600  hover:bg-red-600/90 hover:text-white/90 font-medium dark:text-white dark:hover:text-white/90"
+                onClick={handleLogout}
               >
                 Logout
-              </Link>
+              </Button>
             </div>
           </motion.div>
         )}
