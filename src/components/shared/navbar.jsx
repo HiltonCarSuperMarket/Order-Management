@@ -63,6 +63,13 @@ const Navbar = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-8">
+          <Link
+            href="/view-orders"
+            className="text-gray-700 hover:text-[#2C45AA] font-medium py-2 dark:text-gray-300 dark:hover:text-[#4e6cde]"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            View Orders
+          </Link>
           {ADMIN_ROLE && (
             <Link
               href="/signup"
@@ -71,12 +78,22 @@ const Navbar = () => {
               Create User
             </Link>
           )}
-          <Button
-            className="text-white  bg-red-600  hover:bg-red-600/90 hover:text-white/90 font-medium dark:text-white dark:hover:text-white/90"
-            onClick={handleLogout}
-          >
-            Logout
-          </Button>
+          {role && (
+            <Button
+              className="text-white  bg-red-600  hover:bg-red-600/90 hover:text-white/90 font-medium dark:text-white dark:hover:text-white/90"
+              onClick={handleLogout}
+            >
+              Logout
+            </Button>
+          )}
+          {!role && (
+            <Link
+              href={"/"}
+              className="text-white  bg-primary  hover:bg-primary hover:text-white/90 font-medium dark:text-white dark:hover:text-white/90"
+            >
+              Logout
+            </Link>
+          )}
           <ThemeToggle />
         </nav>
 
@@ -106,6 +123,14 @@ const Navbar = () => {
             className="md:hidden bg-white dark:bg-gray-900"
           >
             <div className="container mx-auto px-4 py-4 flex flex-col space-y-4">
+              <Link
+                href="/view-orders"
+                className="text-gray-700 hover:text-[#2C45AA] font-medium py-2 dark:text-gray-300 dark:hover:text-[#4e6cde]"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Create User
+              </Link>
+
               {ADMIN_ROLE && (
                 <Link
                   href="/create-user"
@@ -115,12 +140,23 @@ const Navbar = () => {
                   Create User
                 </Link>
               )}
-              <Button
-                className="text-white  bg-red-600  hover:bg-red-600/90 hover:text-white/90 font-medium dark:text-white dark:hover:text-white/90"
-                onClick={handleLogout}
-              >
-                Logout
-              </Button>
+              {role && (
+                <Button
+                  className="text-white  bg-red-600  hover:bg-red-600/90 hover:text-white/90 font-medium dark:text-white dark:hover:text-white/90"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </Button>
+              )}
+
+              {!role && (
+                <Link
+                  href={"/"}
+                  className="text-white  bg-primary  hover:bg-primary hover:text-white/90 font-medium dark:text-white dark:hover:text-white/90"
+                >
+                  Login
+                </Link>
+              )}
             </div>
           </motion.div>
         )}

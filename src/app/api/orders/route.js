@@ -12,8 +12,19 @@ export async function GET(req) {
     const search = searchParams.get("search") || "";
     const skip = (page - 1) * limit;
 
-    const salesExeName = searchParams.get("salesExeName")?.split(",") || [];
+    // Get all filter parameters
+    const salesExecutive = searchParams.get("salesExecutive")?.split(",") || [];
     const pctStatus = searchParams.get("pctStatus")?.split(",") || [];
+    const enquiryType = searchParams.get("enquiryType")?.split(",") || [];
+    const location = searchParams.get("location")?.split(",") || [];
+    const isPCTSheetReceivedWithinTime =
+      searchParams.get("isPCTSheetReceivedWithinTime")?.split(",") || [];
+    const isShowUp = searchParams.get("isShowUp")?.split(",") || [];
+    const isDeal = searchParams.get("isDeal")?.split(",") || [];
+    const reasonForAction =
+      searchParams.get("reasonForAction")?.split(",") || [];
+    const isLossDeal = searchParams.get("isLossDeal")?.split(",") || [];
+    const orderStatus = searchParams.get("orderStatus")?.split(",") || [];
     const months = searchParams.get("months")?.split(",") || [];
 
     // Search filter applied to all fields in Order table
@@ -37,6 +48,7 @@ export async function GET(req) {
     // Build filter conditions
     const filterConditions = [];
 
+    // Handle month filters
     if (months.length > 0) {
       const monthConditions = months.map((monthStr) => {
         const [monthName, yearStr] = monthStr.trim().split(" ");
@@ -57,20 +69,39 @@ export async function GET(req) {
         };
         const month = monthMap[monthName];
         const startDate = new Date(year, month, 1);
-        const endDate = new Date(year, month + 1, 1);
-        return { orderDate: { $gte: startDate, $lt: endDate } };
+        const endDate = new Date(year, month + 1, 0); // Last day of the month
+        return {
+          orderDate: {
+            $gte: startDate,
+            $lte: endDate,
+          },
+        };
       });
-      filterConditions.push({ $or: monthConditions });
+
+      if (monthConditions.length > 0) {
+        filterConditions.push({ $or: monthConditions });
+      }
     }
 
-    if (pctStatus.length > 0) {
-      filterConditions.push({ pctStatus: { $in: pctStatus } });
-    }
+    // Handle all other filters
+    const addFilter = (field, values) => {
+      if (values.length > 0) {
+        filterConditions.push({ [field]: { $in: values } });
+      }
+    };
 
-    if (salesExeName.length > 0) {
-      filterConditions.push({ salesExecutive: { $in: salesExeName } });
-    }
+    addFilter("salesExecutive", salesExecutive);
+    addFilter("pctStatus", pctStatus);
+    addFilter("enquiryType", enquiryType);
+    addFilter("location", location);
+    addFilter("isPCTSheetReceivedWithinTime", isPCTSheetReceivedWithinTime);
+    addFilter("isShowUp", isShowUp);
+    addFilter("isDeal", isDeal);
+    addFilter("reasonForAction", reasonForAction);
+    addFilter("isLossDeal", isLossDeal);
+    addFilter("orderStatus", orderStatus);
 
+    // Combine search filter and other filters
     const matchCondition = {
       ...searchFilter,
       ...(filterConditions.length > 0 ? { $and: filterConditions } : {}),
@@ -83,6 +114,7 @@ export async function GET(req) {
       .limit(limit);
 
     const totalOrders = await Order.countDocuments(matchCondition);
+
     return NextResponse.json({
       success: true,
       data: orders,

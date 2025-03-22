@@ -111,10 +111,12 @@ export default function LandingPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.4 }}
             >
-              <Button className="bg-[#2C45AA] text-white hover:bg-[#1a2f7a] text-lg px-8 py-6 dark:bg-[#4e6cde] dark:hover:bg-[#3a56b9]">
-                View Orders
-                <ChevronRight className="ml-2 h-5 w-5" />
-              </Button>
+              <Link href={"/view-orders"}>
+                <Button className="bg-[#2C45AA] text-white hover:bg-[#1a2f7a] text-lg px-8 py-6 dark:bg-[#4e6cde] dark:hover:bg-[#3a56b9]">
+                  View Orders
+                  <ChevronRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
               <Button
                 variant="outline"
                 className="border-[#2C45AA] text-[#2C45AA] hover:bg-[#2C45AA] hover:text-white text-lg px-8 py-6 dark:border-[#4e6cde] dark:text-[#4e6cde] dark:hover:bg-[#4e6cde] dark:hover:text-white"
