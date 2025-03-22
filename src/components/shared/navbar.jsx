@@ -124,7 +124,7 @@ const Navbar = () => {
           >
             <div className="container mx-auto px-4 py-4 flex flex-col space-y-4">
               <Link
-                href="/view-orders"
+                href="/signup"
                 className="text-gray-700 hover:text-[#2C45AA] font-medium py-2 dark:text-gray-300 dark:hover:text-[#4e6cde]"
                 onClick={() => setMobileMenuOpen(false)}
               >
