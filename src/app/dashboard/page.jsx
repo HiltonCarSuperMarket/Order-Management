@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Navbar from "@/components/shared/navbar";
+import ImageCarousel from "@/components/shared/image-corousel";
 
 export default function LandingPage() {
   const fadeIn = {
@@ -51,6 +52,13 @@ export default function LandingPage() {
       },
     },
   };
+
+  const carouselImages = [
+    "/hero.jpg",
+    "/hero-1.jpg",
+    "/hero-2.jpg",
+    "/hero-3.jpg",
+  ];
 
   return (
     <div className="min-h-screen flex flex-col max-w-screen overflow-x-hidden">
@@ -121,23 +129,12 @@ export default function LandingPage() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="relative h-[300px] sm:h-[400px] lg:h-[500px] rounded-lg overflow-hidden shadow-2xl mt-4"
           >
-            <Image
-              src="/hero.jpg"
-              alt="Order management dashboard"
-              fill
-              className="object-fill object-center"
-              priority
+            <ImageCarousel
+              images={carouselImages}
+              interval={5000}
+              overlayTitle="Streamlined Order Management"
+              overlayDescription="Track, manage, and optimize your vehicle orders"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
-              <div className="p-6 text-white">
-                <h3 className="text-2xl font-bold mb-2">
-                  Streamlined Order Management
-                </h3>
-                <p className="mb-4">
-                  Track, manage, and optimize your vehicle orders
-                </p>
-              </div>
-            </div>
           </motion.div>
         </div>
       </section>
