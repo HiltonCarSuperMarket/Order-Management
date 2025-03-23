@@ -122,12 +122,6 @@ export default function EditOrderPage() {
     };
   };
 
-  // Format date to UK format
-  const formatUKDate = (date) => {
-    if (!date) return "";
-    return format(date, "dd/MM/yyyy");
-  };
-
   // Parse date string to Date object
   const parseDate = (dateString) => {
     if (!dateString) return null;
@@ -218,7 +212,7 @@ export default function EditOrderPage() {
           setFormData(parsedData);
         } else {
           toast.error("Failed to load order data");
-          router.push("/orders");
+          router.push("/view-orders");
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -401,6 +395,13 @@ export default function EditOrderPage() {
     return true;
   };
 
+  // Format date for MongoDB storage
+  const formatDateForMongoDB = (date) => {
+    if (!date) return null;
+    // Return the date object directly which will be converted to ISODate in MongoDB
+    return new Date(date);
+  };
+
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -415,13 +416,15 @@ export default function EditOrderPage() {
           reasonDetail: formData.reasonDetail || "Not Given",
         };
 
-        // Format dates in UK format for API
+        // Format dates for MongoDB storage
         const formattedData = {
           ...finalFormData,
-          entryDate: formatUKDate(finalFormData.entryDate),
-          orderDate: formatUKDate(finalFormData.orderDate),
-          collectionDate: formatUKDate(finalFormData.collectionDate),
-          cancellationDate: formatUKDate(finalFormData.cancellationDate),
+          entryDate: formatDateForMongoDB(finalFormData.entryDate),
+          orderDate: formatDateForMongoDB(finalFormData.orderDate),
+          collectionDate: formatDateForMongoDB(finalFormData.collectionDate),
+          cancellationDate: formatDateForMongoDB(
+            finalFormData.cancellationDate
+          ),
         };
 
         // Update order data
@@ -433,7 +436,7 @@ export default function EditOrderPage() {
         toast.success("Order updated successfully");
 
         // Redirect back to orders page
-        router.push("/orders");
+        router.push("/view-orders");
       } catch (error) {
         console.error("Error updating order:", error);
         toast.error("Failed to update order");
@@ -487,7 +490,7 @@ export default function EditOrderPage() {
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
                           {formData.entryDate
-                            ? formatUKDate(formData.entryDate)
+                            ? format(formData.entryDate, "dd/MM/yyyy")
                             : "Select date"}
                         </Button>
                       </PopoverTrigger>
@@ -577,7 +580,7 @@ export default function EditOrderPage() {
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
                           {formData.orderDate
-                            ? formatUKDate(formData.orderDate)
+                            ? format(formData.orderDate, "dd/MM/yyyy")
                             : "Select date"}
                         </Button>
                       </PopoverTrigger>
@@ -609,7 +612,7 @@ export default function EditOrderPage() {
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
                           {formData.collectionDate
-                            ? formatUKDate(formData.collectionDate)
+                            ? format(formData.collectionDate, "dd/MM/yyyy")
                             : "Select date"}
                         </Button>
                       </PopoverTrigger>
@@ -809,7 +812,7 @@ export default function EditOrderPage() {
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
                           {formData.cancellationDate
-                            ? formatUKDate(formData.cancellationDate)
+                            ? format(formData.cancellationDate, "dd/MM/yyyy")
                             : "Select date"}
                         </Button>
                       </PopoverTrigger>
@@ -880,7 +883,7 @@ export default function EditOrderPage() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => router.push("/orders")}
+                onClick={() => router.push("/view-orders")}
                 className="dark:bg-gray-700 dark:text-white dark:border-gray-600"
               >
                 Cancel
