@@ -81,6 +81,8 @@ export default function OrdersDashboard() {
   const [months, setMonths] = useState([]);
   const controls = useAnimation();
 
+  console.log("ORDERS", orders);
+
   // Column filters
   const [columnFilters, setColumnFilters] = useState({});
 
@@ -332,7 +334,6 @@ export default function OrdersDashboard() {
 
     const values = orders.map((order) => order[columnName]);
 
-    console.log(columnName, values);
     return [...new Set(values)].filter(Boolean);
   };
 
@@ -340,7 +341,7 @@ export default function OrdersDashboard() {
   const columns = [
     { key: "entryDate", label: "Entry Date", format: formatDate },
     { key: "entryTime", label: "Entry Time" },
-    { key: "registration", label: "Registration" },
+    { key: "registeration", label: "Registration" },
     { key: "enquiryType", label: "Enquiry Type", filterable: true },
     { key: "orderDate", label: "Order Date", format: formatDate },
     { key: "collectionDate", label: "Collection Date", format: formatDate },
@@ -349,7 +350,7 @@ export default function OrdersDashboard() {
     { key: "customer", label: "Customer" },
     { key: "location", label: "Location", filterable: true },
     {
-      key: "isPCTSheetReceivedWithinTime",
+      key: "isPctSheetReceivedWithinTime",
       label: "PCT Received",
       filterable: true,
       badge: true,

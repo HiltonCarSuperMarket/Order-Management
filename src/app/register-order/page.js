@@ -55,7 +55,7 @@ function SearchableSelect({ options, value, onChange, placeholder }) {
         <Command className="dark:bg-gray-800">
           <CommandInput
             placeholder="Search..."
-            className="h-9 dark:bg-gray-700 dark:text-white"
+            className="h-9 dark:bg-gray-700 dark:text-white pl-3"
           />
           <CommandList>
             <CommandEmpty className="py-2 text-center text-sm dark:text-gray-400">
@@ -118,7 +118,6 @@ export default function OrderRegistrationPage() {
     return format(date, "dd/MM/yyyy");
   };
 
-  const [darkMode, setDarkMode] = useState(false);
   const [formData, setFormData] = useState({
     entryDate: getCurrentUKDateTime().date,
     entryTime: getCurrentUKDateTime().time,
@@ -187,13 +186,6 @@ export default function OrderRegistrationPage() {
 
     fetchOptions();
   }, []);
-
-  // Set dark mode class on initial load
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add("dark");
-    }
-  }, [darkMode]);
 
   // Handle input changes
   const handleChange = (field, value) => {
@@ -392,9 +384,8 @@ export default function OrderRegistrationPage() {
     <div>
       <Navbar />
       <div
-        className={`min-h-screen p-4 md:p-8 ${
-          darkMode ? "dark bg-gray-900" : "bg-gray-50"
-        }`}
+        className={`min-h-screen p-4 md:p-8 
+         `}
       >
         <div className="max-w-6xl mt-6 mx-auto">
           <div className="text-center py-6">
