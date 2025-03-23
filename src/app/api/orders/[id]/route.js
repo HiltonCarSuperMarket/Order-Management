@@ -35,7 +35,7 @@ export async function PUT(request, { params }) {
     const updatedOrder = await Order.findByIdAndUpdate(
       id,
       { $set: body },
-      { new: true, runValidators: true }
+      { new: true, runValidators: false }
     );
 
     if (!updatedOrder) {

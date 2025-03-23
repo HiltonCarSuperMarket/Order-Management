@@ -15,13 +15,6 @@ import {
 } from "@/components/ui/popover";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import {
   Command,
   CommandEmpty,
   CommandGroup,
@@ -29,8 +22,9 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { CalendarIcon, Clock, X } from "lucide-react";
+import { CalendarIcon, Clock } from "lucide-react";
 import Navbar from "@/components/shared/navbar";
+import { toast } from "sonner";
 
 // Searchable select component
 function SearchableSelect({ options, value, onChange, placeholder }) {
@@ -112,12 +106,6 @@ export default function OrderRegistrationPage() {
     };
   };
 
-  // Format date to UK format
-  const formatUKDate = (date) => {
-    if (!date) return "";
-    return format(date, "dd/MM/yyyy");
-  };
-
   const [formData, setFormData] = useState({
     entryDate: getCurrentUKDateTime().date,
     entryTime: getCurrentUKDateTime().time,
@@ -141,8 +129,7 @@ export default function OrderRegistrationPage() {
   });
 
   const [errors, setErrors] = useState({});
-  const [errorModalOpen, setErrorModalOpen] = useState(false);
-  const [firstError, setFirstError] = useState({ field: "", message: "" });
+  // No need for these states when using toast
   // Initialize options state with default empty objects for each field
   const [options, setOptions] = useState({
     enquiryType: [],
@@ -345,11 +332,7 @@ export default function OrderRegistrationPage() {
 
     // Set first error for modal
     if (firstErrorField) {
-      setFirstError({
-        field: firstErrorField,
-        message: firstErrorMessage,
-      });
-      setErrorModalOpen(true);
+      toast.error(firstErrorMessage);
       return false;
     }
 
@@ -357,7 +340,7 @@ export default function OrderRegistrationPage() {
   };
 
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (validateForm()) {
@@ -367,16 +350,54 @@ export default function OrderRegistrationPage() {
         reasonDetail: formData.reasonDetail || "Not Given",
       };
 
-      // Format dates in UK format for console output
+      // Format dates for MongoDB storage
       const formattedData = {
         ...finalFormData,
-        entryDate: formatUKDate(finalFormData.entryDate),
-        orderDate: formatUKDate(finalFormData.orderDate),
-        collectionDate: formatUKDate(finalFormData.collectionDate),
-        cancellationDate: formatUKDate(finalFormData.cancellationDate),
+        entryDate: new Date(finalFormData.entryDate),
+        orderDate: new Date(finalFormData.orderDate),
+        collectionDate: new Date(finalFormData.collectionDate),
+        cancellationDate: new Date(finalFormData.cancellationDate),
       };
 
-      console.log("Form submitted:", formattedData);
+      try {
+        const response = await axios.post("/api/orders", formattedData);
+
+        // Show success toast
+        toast.success("Order registered successfully!");
+
+        // Clear form after successful submission
+        setFormData({
+          entryDate: getCurrentUKDateTime().date,
+          entryTime: getCurrentUKDateTime().time,
+          registeration: "",
+          enquiryType: "",
+          orderDate: getCurrentUKDateTime().date,
+          collectionDate: getCurrentUKDateTime().date,
+          collectionTime: getCurrentUKDateTime().time,
+          salesExecutive: "",
+          customer: "",
+          location: "",
+          isPctSheetReceivedWithinTime: "",
+          pctStatus: "",
+          orderStatus: "",
+          isShowUp: "",
+          isDeal: "",
+          cancellationDate: getCurrentUKDateTime().date,
+          reasonForAction: "",
+          reasonDetail: "",
+          isLossDeal: "",
+        });
+
+        console.log("Form submitted:", formattedData);
+      } catch (error) {
+        // Show error toast
+        toast.error("Failed to register order!");
+
+        console.error(
+          "Error registering order:",
+          error.response?.data || error.message
+        );
+      }
     }
   };
 
@@ -416,7 +437,7 @@ export default function OrderRegistrationPage() {
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
                           {formData.entryDate
-                            ? formatUKDate(formData.entryDate)
+                            ? format(formData.entryDate, "dd/MM/yyyy")
                             : "Select date"}
                         </Button>
                       </PopoverTrigger>
@@ -506,7 +527,7 @@ export default function OrderRegistrationPage() {
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
                           {formData.orderDate
-                            ? formatUKDate(formData.orderDate)
+                            ? format(formData.orderDate, "dd/MM/yyyy")
                             : "Select date"}
                         </Button>
                       </PopoverTrigger>
@@ -538,7 +559,7 @@ export default function OrderRegistrationPage() {
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
                           {formData.collectionDate
-                            ? formatUKDate(formData.collectionDate)
+                            ? format(formData.collectionDate, "dd/MM/yyyy")
                             : "Select date"}
                         </Button>
                       </PopoverTrigger>
@@ -738,7 +759,7 @@ export default function OrderRegistrationPage() {
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
                           {formData.cancellationDate
-                            ? formatUKDate(formData.cancellationDate)
+                            ? format(formData.cancellationDate, "dd/MM/yyyy")
                             : "Select date"}
                         </Button>
                       </PopoverTrigger>
@@ -815,33 +836,6 @@ export default function OrderRegistrationPage() {
               </Button>
             </div>
           </form>
-          {/* Error Modal */}
-          <Dialog open={errorModalOpen} onOpenChange={setErrorModalOpen}>
-            <DialogContent className="sm:max-w-md dark:bg-gray-800">
-              <DialogHeader>
-                <DialogTitle className="flex items-center text-red-500 dark:text-red-400">
-                  <span>Validation Error</span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setErrorModalOpen(false)}
-                    className="ml-auto h-8 w-8 p-0"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </DialogTitle>
-              </DialogHeader>
-              <div className="py-4 dark:text-white">{firstError.message}</div>
-              <DialogFooter>
-                <Button
-                  onClick={() => setErrorModalOpen(false)}
-                  className="w-full dark:bg-primary dark:hover:bg-primary/90"
-                >
-                  OK
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
         </div>
       </div>
     </div>
