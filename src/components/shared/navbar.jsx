@@ -47,14 +47,14 @@ const Navbar = () => {
 
   return (
     <header
-      className={`fixed w-full z-50 transition-all duration-300 ${
+      className={`fixed  w-full z-50 transition-all duration-300 ${
         isScrolled
-          ? "bg-white shadow-md py-2 dark:bg-gray-900 dark:shadow-gray-800/20"
+          ? "bg-white shadow-md py-3 dark:bg-gray-900 dark:shadow-gray-800/20"
           : "bg-transparent py-4"
       }`}
     >
       <div className="max-w-7xl  mx-auto w-full px-4 flex justify-between items-center">
-        <Link href="/" className="flex items-center space-x-2">
+        <Link href="/dashboard" className="flex items-center space-x-2">
           <Car className="h-8 w-8 text-[#2C45AA] dark:text-[#4e6cde]" />
           <span className="font-bold text-xl text-[#2C45AA] dark:text-[#4e6cde] ">
             Hilton Car <span> SuperMarket </span>
@@ -63,6 +63,13 @@ const Navbar = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-8">
+          <Link
+            href="/register-order"
+            className="text-gray-700 hover:text-[#2C45AA] font-medium py-2 dark:text-gray-300 dark:hover:text-[#4e6cde]"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            Register Order
+          </Link>
           <Link
             href="/view-orders"
             className="text-gray-700 hover:text-[#2C45AA] font-medium py-2 dark:text-gray-300 dark:hover:text-[#4e6cde]"
