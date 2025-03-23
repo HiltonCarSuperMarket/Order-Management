@@ -406,7 +406,7 @@ export default function OrderRegistrationPage() {
               Order Registration
             </h1>
           </div>
-
+          //Form
           <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Entry Date */}
@@ -828,7 +828,6 @@ export default function OrderRegistrationPage() {
               </Button>
             </div>
           </form>
-
           {/* Error Modal */}
           <Dialog open={errorModalOpen} onOpenChange={setErrorModalOpen}>
             <DialogContent className="sm:max-w-md dark:bg-gray-800">
