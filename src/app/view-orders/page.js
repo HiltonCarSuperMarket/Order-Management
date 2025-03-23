@@ -41,6 +41,7 @@ import {
 import Navbar from "@/components/shared/navbar";
 import { toast } from "sonner";
 import DeleteOrderDialog from "@/components/shared/delete-order-dialog";
+import OrderHighlightCards from "@/components/shared/order-highlight-card";
 
 // And add this state and useEffect instead:
 const initialFilterOptions = {
@@ -464,7 +465,12 @@ export default function OrdersDashboard() {
         animate="visible"
         variants={containerVariants}
       >
-        <h2 className="text-center text-4xl font-bold  "> Orders Dashboard</h2>
+        <h2 className="text-center text-4xl font-bold   pt-10  sm:pt-2 ">
+          {" "}
+          Orders Dashboard
+        </h2>
+
+        <OrderHighlightCards />
         <motion.div variants={itemVariants}>
           <Card className="border border-[#2C45AA]/20  bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
             <CardHeader className="pb-3">
@@ -1008,33 +1014,33 @@ export default function OrdersDashboard() {
                       setLimit(Number(value));
                       setCurrentPage(1);
                     }}
-                    className="bg-gray-800"
+                    className="dark:bg-gray-800"
                   >
                     <SelectTrigger className="w-[70px]">
                       <SelectValue placeholder="10" />
                     </SelectTrigger>
-                    <SelectContent className={"bg-gray-800"}>
+                    <SelectContent className={"dark:bg-gray-800"}>
                       <SelectItem
                         value="5"
-                        className=" bg-gray-800 hover:bg-gray-700"
+                        className=" dark:bg-gray-800 dark:hover:bg-gray-700"
                       >
                         5
                       </SelectItem>
                       <SelectItem
                         value="10"
-                        className="bg-gray-800 hover:bg-gray-700"
+                        className="dark:bg-gray-800 dark:hover:bg-gray-700"
                       >
                         10
                       </SelectItem>
                       <SelectItem
                         value="20"
-                        className="bg-gray-800 hover:bg-gray-700"
+                        className="dark:bg-gray-800 dark:hover:bg-gray-700"
                       >
                         20
                       </SelectItem>
                       <SelectItem
                         value="50"
-                        className="bg-gray-800 hover:bg-gray-700"
+                        className="dark:bg-gray-800 dark:hover:bg-gray-700"
                       >
                         50
                       </SelectItem>
