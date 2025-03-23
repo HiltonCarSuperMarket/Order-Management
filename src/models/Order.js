@@ -13,7 +13,7 @@ const OrderSchema = new Schema({
     type: String,
     required: true,
   },
-  registration: {
+  registeration: {
     type: String,
     required: true,
   },
@@ -37,9 +37,8 @@ const OrderSchema = new Schema({
     type: String,
     required: true,
   },
-  isPCTSheetReceivedWithinTime: {
+  isPctSheetReceivedWithinTime: {
     type: String,
-    enum: ["Yes", "No"],
     required: true,
   },
   pctStatus: {
@@ -52,12 +51,10 @@ const OrderSchema = new Schema({
   },
   isShowUp: {
     type: String,
-    enum: ["Yes", "No"],
     required: true,
   },
   isDeal: {
     type: String,
-    enum: ["Yes", "No"],
     required: true,
   },
   cancellationDate: {
@@ -72,7 +69,6 @@ const OrderSchema = new Schema({
   },
   isLossDeal: {
     type: String,
-    enum: ["Yes", "No"],
     required: true,
   },
   customer: {
