@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import axios from "axios";
 import {
   Popover,
   PopoverContent,
@@ -28,63 +29,15 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { Moon, Sun, CalendarIcon, Clock, X } from "lucide-react";
+import { CalendarIcon, Clock, X } from "lucide-react";
 import Navbar from "@/components/shared/navbar";
-
-// Options for select menus - can be modified later
-const options = {
-  enquiryType: ["Reservation", "Test Drive"],
-  salesExecutive: [
-    "Zaiyaan Ashraf",
-    "Abul Thaher",
-    "Mirza Ansab",
-    "Abubaker Basharat",
-    "Riley Tiesse",
-    "Danyal Mehmood",
-    "Venu Padhyay",
-    "Abdul Wahid",
-  ],
-  location: [
-    "Ready To Retail",
-    "Milton Keynes",
-    "New Arrivals",
-    "Transit",
-    "Aylesbury",
-  ],
-  isPctSheetReceivedWithinTime: ["Yes", "No", "In-Process"],
-  pctStatus: [
-    "Ready to Go - 0 to 99",
-    "Mechanical Major: 151 - 299",
-    "Mechanical Minor: 100 - 150",
-    "Bodywork Major: 451 - 499",
-    "Finance: 800 - 899",
-    "Test Drive: 600 - 699",
-    "Bodywork Minor: 400 - 450",
-    "Transit: 500 - 599",
-    "Test Drive: 700 - 799",
-    "Inspection: 300 - 399",
-    "Bodywork Minor: 400 - 449",
-  ],
-  orderStatus: ["Inactive", "Active"],
-  isShowUp: ["Yes", "No", "Active-Order"],
-  isDeal: ["Yes", "No", "Active-Order"],
-  reasonForAction: [
-    "Sold",
-    "Phone - Cancellation - Not interested anymore",
-    "Phone - Cancellation - Not answering phone",
-    "Phone - Cancellation - Finance declined",
-    "Onsite - Cancellation - Not interested anymore",
-    "Phone - Cancellation - Changed to new order",
-    "Phone - Cancellation - Bought another car from Hilton",
-    "Phone - Cancellation - SE - 72-hour timeline not met",
-    "Phone - Cancellation - Bought another car from elsewhere",
-  ],
-  isLossDeal: ["Sold", "Yes", "No"],
-};
 
 // Searchable select component
 function SearchableSelect({ options, value, onChange, placeholder }) {
   const [open, setOpen] = useState(false);
+
+  // Add a default empty array if options is undefined
+  const safeOptions = options || [];
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -109,7 +62,7 @@ function SearchableSelect({ options, value, onChange, placeholder }) {
               No results found.
             </CommandEmpty>
             <CommandGroup className="max-h-[200px] overflow-auto">
-              {options.map((option) => (
+              {safeOptions.map((option) => (
                 <CommandItem
                   key={option}
                   onSelect={() => {
@@ -191,6 +144,49 @@ export default function OrderRegistrationPage() {
   const [errors, setErrors] = useState({});
   const [errorModalOpen, setErrorModalOpen] = useState(false);
   const [firstError, setFirstError] = useState({ field: "", message: "" });
+  // Initialize options state with default empty objects for each field
+  const [options, setOptions] = useState({
+    enquiryType: [],
+    salesExecutive: [],
+    location: [],
+    isPctSheetReceivedWithinTime: [],
+    pctStatus: [],
+    orderStatus: [],
+    isShowUp: [],
+    isDeal: [],
+    reasonForAction: [],
+    isLossDeal: [],
+  });
+  useEffect(() => {
+    const fetchOptions = async () => {
+      try {
+        const response = await axios.get("/api/filter-options");
+        setOptions(response.data);
+      } catch (error) {
+        console.error("Error fetching filter options:", error);
+        // Set default options if API call fails
+        setOptions({
+          enquiryType: ["Phone", "Email", "Walk-in", "Referral"],
+          salesExecutive: ["John Doe", "Jane Smith", "Mark Johnson"],
+          location: ["London", "Manchester", "Birmingham", "Leeds"],
+          isPctSheetReceivedWithinTime: ["Yes", "No"],
+          pctStatus: ["Completed", "Pending", "Not Required"],
+          orderStatus: ["New", "In Progress", "Completed", "Cancelled"],
+          isShowUp: ["Yes", "No"],
+          isDeal: ["Yes", "No"],
+          reasonForAction: [
+            "Customer Request",
+            "Technical Issue",
+            "Pricing",
+            "Other",
+          ],
+          isLossDeal: ["Yes", "No"],
+        });
+      }
+    };
+
+    fetchOptions();
+  }, []);
 
   // Set dark mode class on initial load
   useEffect(() => {
