@@ -29,6 +29,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Moon, Sun, CalendarIcon, Clock, X } from "lucide-react";
+import Navbar from "@/components/shared/navbar";
 
 // Options for select menus - can be modified later
 const options = {
@@ -190,12 +191,6 @@ export default function OrderRegistrationPage() {
   const [errors, setErrors] = useState({});
   const [errorModalOpen, setErrorModalOpen] = useState(false);
   const [firstError, setFirstError] = useState({ field: "", message: "" });
-
-  // Toggle dark mode
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    document.documentElement.classList.toggle("dark");
-  };
 
   // Set dark mode class on initial load
   useEffect(() => {
@@ -398,466 +393,470 @@ export default function OrderRegistrationPage() {
   };
 
   return (
-    <div
-      className={`min-h-screen p-4 md:p-8 ${
-        darkMode ? "dark bg-gray-900" : "bg-gray-50"
-      }`}
-    >
-      <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl md:text-3xl font-bold dark:text-white">
-            Order Registration
-          </h1>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={toggleDarkMode}
-            className="rounded-full"
-          >
-            {darkMode ? (
-              <Sun className="h-5 w-5" />
-            ) : (
-              <Moon className="h-5 w-5" />
-            )}
-            <span className="sr-only">Toggle dark mode</span>
-          </Button>
-        </div>
-
-        <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Entry Date */}
-            <Card className="dark:bg-gray-800">
-              <CardHeader>
-                <CardTitle className="text-lg dark:text-white">
-                  Entry Details
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="entryDate" className="dark:text-gray-300">
-                    Entry Date*
-                  </Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start text-left font-normal dark:bg-gray-700 dark:text-white dark:border-gray-600"
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {formData.entryDate
-                          ? formatUKDate(formData.entryDate)
-                          : "Select date"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 dark:bg-gray-800">
-                      <Calendar
-                        mode="single"
-                        selected={formData.entryDate}
-                        onSelect={(date) => handleDateChange("entryDate", date)}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="entryTime" className="dark:text-gray-300">
-                    Entry Time*
-                  </Label>
-                  <div className="flex items-center">
-                    <Input
-                      id="entryTime"
-                      type="time"
-                      value={formData.entryTime}
-                      onChange={(e) =>
-                        handleChange("entryTime", e.target.value)
-                      }
-                      className="dark:bg-gray-700 dark:text-white dark:border-gray-600"
-                    />
-                    <Clock className="ml-2 h-4 w-4 text-gray-500 dark:text-gray-400" />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="registeration" className="dark:text-gray-300">
-                    Registration*
-                  </Label>
-                  <Input
-                    id="registeration"
-                    value={formData.registeration}
-                    onChange={(e) =>
-                      handleChange(
-                        "registeration",
-                        e.target.value.toUpperCase()
-                      )
-                    }
-                    placeholder="ABC123"
-                    className="dark:bg-gray-700 dark:text-white dark:border-gray-600"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="enquiryType" className="dark:text-gray-300">
-                    Enquiry Type*
-                  </Label>
-                  <SearchableSelect
-                    options={options.enquiryType}
-                    value={formData.enquiryType}
-                    onChange={(value) => handleChange("enquiryType", value)}
-                    placeholder="Select enquiry type"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Order Details */}
-            <Card className="dark:bg-gray-800">
-              <CardHeader>
-                <CardTitle className="text-lg dark:text-white">
-                  Order Details
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="orderDate" className="dark:text-gray-300">
-                    Order Date*
-                  </Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start text-left font-normal dark:bg-gray-700 dark:text-white dark:border-gray-600"
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {formData.orderDate
-                          ? formatUKDate(formData.orderDate)
-                          : "Select date"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 dark:bg-gray-800">
-                      <Calendar
-                        mode="single"
-                        selected={formData.orderDate}
-                        onSelect={(date) => handleDateChange("orderDate", date)}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="collectionDate"
-                    className="dark:text-gray-300"
-                  >
-                    Collection Date*
-                  </Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start text-left font-normal dark:bg-gray-700 dark:text-white dark:border-gray-600"
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {formData.collectionDate
-                          ? formatUKDate(formData.collectionDate)
-                          : "Select date"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 dark:bg-gray-800">
-                      <Calendar
-                        mode="single"
-                        selected={formData.collectionDate}
-                        onSelect={(date) =>
-                          handleDateChange("collectionDate", date)
-                        }
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="collectionTime"
-                    className="dark:text-gray-300"
-                  >
-                    Collection Time*
-                  </Label>
-                  <div className="flex items-center">
-                    <Input
-                      id="collectionTime"
-                      type="time"
-                      value={formData.collectionTime}
-                      onChange={(e) =>
-                        handleChange("collectionTime", e.target.value)
-                      }
-                      className="dark:bg-gray-700 dark:text-white dark:border-gray-600"
-                    />
-                    <Clock className="ml-2 h-4 w-4 text-gray-500 dark:text-gray-400" />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="salesExecutive"
-                    className="dark:text-gray-300"
-                  >
-                    Sales Executive*
-                  </Label>
-                  <SearchableSelect
-                    options={options.salesExecutive}
-                    value={formData.salesExecutive}
-                    onChange={(value) => handleChange("salesExecutive", value)}
-                    placeholder="Select sales executive"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="location" className="dark:text-gray-300">
-                    Location*
-                  </Label>
-                  <SearchableSelect
-                    options={options.location}
-                    value={formData.location}
-                    onChange={(value) => handleChange("location", value)}
-                    placeholder="Select location"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Customer Details */}
-            <Card className="dark:bg-gray-800">
-              <CardHeader>
-                <CardTitle className="text-lg dark:text-white">
-                  Customer Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="customer" className="dark:text-gray-300">
-                    Customer*
-                  </Label>
-                  <Input
-                    id="customer"
-                    value={formData.customer}
-                    onChange={(e) => handleChange("customer", e.target.value)}
-                    placeholder="Customer name"
-                    className="dark:bg-gray-700 dark:text-white dark:border-gray-600"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* PCT Details */}
-            <Card className="dark:bg-gray-800">
-              <CardHeader>
-                <CardTitle className="text-lg dark:text-white">
-                  PCT Details
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="isPctSheetReceivedWithinTime"
-                    className="dark:text-gray-300"
-                  >
-                    PCT Sheet Received Within Time*
-                  </Label>
-                  <SearchableSelect
-                    options={options.isPctSheetReceivedWithinTime}
-                    value={formData.isPctSheetReceivedWithinTime}
-                    onChange={(value) =>
-                      handleChange("isPctSheetReceivedWithinTime", value)
-                    }
-                    placeholder="Select option"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="pctStatus" className="dark:text-gray-300">
-                    PCT Status*
-                  </Label>
-                  <SearchableSelect
-                    options={options.pctStatus}
-                    value={formData.pctStatus}
-                    onChange={(value) => handleChange("pctStatus", value)}
-                    placeholder="Select PCT status"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Order Status */}
-            <Card className="dark:bg-gray-800">
-              <CardHeader>
-                <CardTitle className="text-lg dark:text-white">
-                  Order Status
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="orderStatus" className="dark:text-gray-300">
-                    Order Status*
-                  </Label>
-                  <SearchableSelect
-                    options={options.orderStatus}
-                    value={formData.orderStatus}
-                    onChange={(value) => handleChange("orderStatus", value)}
-                    placeholder="Select order status"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="isShowUp" className="dark:text-gray-300">
-                    Show Up*
-                  </Label>
-                  <SearchableSelect
-                    options={options.isShowUp}
-                    value={formData.isShowUp}
-                    onChange={(value) => handleChange("isShowUp", value)}
-                    placeholder="Select option"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="isDeal" className="dark:text-gray-300">
-                    Is Deal*
-                  </Label>
-                  <SearchableSelect
-                    options={options.isDeal}
-                    value={formData.isDeal}
-                    onChange={(value) => handleChange("isDeal", value)}
-                    placeholder="Select option"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Cancellation Details */}
-            <Card className="dark:bg-gray-800">
-              <CardHeader>
-                <CardTitle className="text-lg dark:text-white">
-                  Cancellation Details
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="cancellationDate"
-                    className="dark:text-gray-300"
-                  >
-                    Cancellation Date*
-                  </Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start text-left font-normal dark:bg-gray-700 dark:text-white dark:border-gray-600"
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {formData.cancellationDate
-                          ? formatUKDate(formData.cancellationDate)
-                          : "Select date"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 dark:bg-gray-800">
-                      <Calendar
-                        mode="single"
-                        selected={formData.cancellationDate}
-                        onSelect={(date) =>
-                          handleDateChange("cancellationDate", date)
-                        }
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="reasonForAction"
-                    className="dark:text-gray-300"
-                  >
-                    Reason For Action*
-                  </Label>
-                  <SearchableSelect
-                    options={options.reasonForAction}
-                    value={formData.reasonForAction}
-                    onChange={(value) => handleChange("reasonForAction", value)}
-                    placeholder="Select reason"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="reasonDetail" className="dark:text-gray-300">
-                    Reason Detail
-                  </Label>
-                  <Textarea
-                    id="reasonDetail"
-                    value={formData.reasonDetail}
-                    onChange={(e) =>
-                      handleChange("reasonDetail", e.target.value)
-                    }
-                    placeholder="Enter reason details or leave empty for 'Not Given'"
-                    className="min-h-[80px] dark:bg-gray-700 dark:text-white dark:border-gray-600"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="isLossDeal" className="dark:text-gray-300">
-                    Is Loss Deal*
-                  </Label>
-                  <SearchableSelect
-                    options={options.isLossDeal}
-                    value={formData.isLossDeal}
-                    onChange={(value) => handleChange("isLossDeal", value)}
-                    placeholder="Select option"
-                  />
-                </div>
-              </CardContent>
-            </Card>
+    <div>
+      <Navbar />
+      <div
+        className={`min-h-screen p-4 md:p-8 ${
+          darkMode ? "dark bg-gray-900" : "bg-gray-50"
+        }`}
+      >
+        <div className="max-w-6xl mt-6 mx-auto">
+          <div className="text-center py-6">
+            <h1 className="text-2xl  md:text-3xl font-bold dark:text-white">
+              Order Registration
+            </h1>
           </div>
 
-          <div className="mt-8 flex justify-end">
-            <Button
-              type="submit"
-              size="lg"
-              className="bg-primary hover:bg-primary/90 dark:bg-primary dark:hover:bg-primary/90"
-            >
-              Register Order
-            </Button>
-          </div>
-        </form>
+          <form onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Entry Date */}
+              <Card className="dark:bg-gray-800">
+                <CardHeader>
+                  <CardTitle className="text-lg dark:text-white">
+                    Entry Details
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="entryDate" className="dark:text-gray-300">
+                      Entry Date*
+                    </Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {formData.entryDate
+                            ? formatUKDate(formData.entryDate)
+                            : "Select date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 dark:bg-gray-800">
+                        <Calendar
+                          mode="single"
+                          selected={formData.entryDate}
+                          onSelect={(date) =>
+                            handleDateChange("entryDate", date)
+                          }
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
 
-        {/* Error Modal */}
-        <Dialog open={errorModalOpen} onOpenChange={setErrorModalOpen}>
-          <DialogContent className="sm:max-w-md dark:bg-gray-800">
-            <DialogHeader>
-              <DialogTitle className="flex items-center text-red-500 dark:text-red-400">
-                <span>Validation Error</span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setErrorModalOpen(false)}
-                  className="ml-auto h-8 w-8 p-0"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </DialogTitle>
-            </DialogHeader>
-            <div className="py-4 dark:text-white">{firstError.message}</div>
-            <DialogFooter>
+                  <div className="space-y-2">
+                    <Label htmlFor="entryTime" className="dark:text-gray-300">
+                      Entry Time*
+                    </Label>
+                    <div className="flex items-center">
+                      <Input
+                        id="entryTime"
+                        type="time"
+                        value={formData.entryTime}
+                        onChange={(e) =>
+                          handleChange("entryTime", e.target.value)
+                        }
+                        className="dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                      />
+                      <Clock className="ml-2 h-4 w-4 text-gray-500 dark:text-gray-400" />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="registeration"
+                      className="dark:text-gray-300"
+                    >
+                      Registration*
+                    </Label>
+                    <Input
+                      id="registeration"
+                      value={formData.registeration}
+                      onChange={(e) =>
+                        handleChange(
+                          "registeration",
+                          e.target.value.toUpperCase()
+                        )
+                      }
+                      placeholder="ABC123"
+                      className="dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="enquiryType" className="dark:text-gray-300">
+                      Enquiry Type*
+                    </Label>
+                    <SearchableSelect
+                      options={options.enquiryType}
+                      value={formData.enquiryType}
+                      onChange={(value) => handleChange("enquiryType", value)}
+                      placeholder="Select enquiry type"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Order Details */}
+              <Card className="dark:bg-gray-800">
+                <CardHeader>
+                  <CardTitle className="text-lg dark:text-white">
+                    Order Details
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="orderDate" className="dark:text-gray-300">
+                      Order Date*
+                    </Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {formData.orderDate
+                            ? formatUKDate(formData.orderDate)
+                            : "Select date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 dark:bg-gray-800">
+                        <Calendar
+                          mode="single"
+                          selected={formData.orderDate}
+                          onSelect={(date) =>
+                            handleDateChange("orderDate", date)
+                          }
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="collectionDate"
+                      className="dark:text-gray-300"
+                    >
+                      Collection Date*
+                    </Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {formData.collectionDate
+                            ? formatUKDate(formData.collectionDate)
+                            : "Select date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 dark:bg-gray-800">
+                        <Calendar
+                          mode="single"
+                          selected={formData.collectionDate}
+                          onSelect={(date) =>
+                            handleDateChange("collectionDate", date)
+                          }
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="collectionTime"
+                      className="dark:text-gray-300"
+                    >
+                      Collection Time*
+                    </Label>
+                    <div className="flex items-center">
+                      <Input
+                        id="collectionTime"
+                        type="time"
+                        value={formData.collectionTime}
+                        onChange={(e) =>
+                          handleChange("collectionTime", e.target.value)
+                        }
+                        className="dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                      />
+                      <Clock className="ml-2 h-4 w-4 text-gray-500 dark:text-gray-400" />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="salesExecutive"
+                      className="dark:text-gray-300"
+                    >
+                      Sales Executive*
+                    </Label>
+                    <SearchableSelect
+                      options={options.salesExecutive}
+                      value={formData.salesExecutive}
+                      onChange={(value) =>
+                        handleChange("salesExecutive", value)
+                      }
+                      placeholder="Select sales executive"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="location" className="dark:text-gray-300">
+                      Location*
+                    </Label>
+                    <SearchableSelect
+                      options={options.location}
+                      value={formData.location}
+                      onChange={(value) => handleChange("location", value)}
+                      placeholder="Select location"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Customer Details */}
+              <Card className="dark:bg-gray-800">
+                <CardHeader>
+                  <CardTitle className="text-lg dark:text-white">
+                    Customer Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="customer" className="dark:text-gray-300">
+                      Customer*
+                    </Label>
+                    <Input
+                      id="customer"
+                      value={formData.customer}
+                      onChange={(e) => handleChange("customer", e.target.value)}
+                      placeholder="Customer name"
+                      className="dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* PCT Details */}
+              <Card className="dark:bg-gray-800">
+                <CardHeader>
+                  <CardTitle className="text-lg dark:text-white">
+                    PCT Details
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="isPctSheetReceivedWithinTime"
+                      className="dark:text-gray-300"
+                    >
+                      PCT Sheet Received Within Time*
+                    </Label>
+                    <SearchableSelect
+                      options={options.isPctSheetReceivedWithinTime}
+                      value={formData.isPctSheetReceivedWithinTime}
+                      onChange={(value) =>
+                        handleChange("isPctSheetReceivedWithinTime", value)
+                      }
+                      placeholder="Select option"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="pctStatus" className="dark:text-gray-300">
+                      PCT Status*
+                    </Label>
+                    <SearchableSelect
+                      options={options.pctStatus}
+                      value={formData.pctStatus}
+                      onChange={(value) => handleChange("pctStatus", value)}
+                      placeholder="Select PCT status"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Order Status */}
+              <Card className="dark:bg-gray-800">
+                <CardHeader>
+                  <CardTitle className="text-lg dark:text-white">
+                    Order Status
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="orderStatus" className="dark:text-gray-300">
+                      Order Status*
+                    </Label>
+                    <SearchableSelect
+                      options={options.orderStatus}
+                      value={formData.orderStatus}
+                      onChange={(value) => handleChange("orderStatus", value)}
+                      placeholder="Select order status"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="isShowUp" className="dark:text-gray-300">
+                      Show Up*
+                    </Label>
+                    <SearchableSelect
+                      options={options.isShowUp}
+                      value={formData.isShowUp}
+                      onChange={(value) => handleChange("isShowUp", value)}
+                      placeholder="Select option"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="isDeal" className="dark:text-gray-300">
+                      Is Deal*
+                    </Label>
+                    <SearchableSelect
+                      options={options.isDeal}
+                      value={formData.isDeal}
+                      onChange={(value) => handleChange("isDeal", value)}
+                      placeholder="Select option"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Cancellation Details */}
+              <Card className="dark:bg-gray-800">
+                <CardHeader>
+                  <CardTitle className="text-lg dark:text-white">
+                    Cancellation Details
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="cancellationDate"
+                      className="dark:text-gray-300"
+                    >
+                      Cancellation Date*
+                    </Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {formData.cancellationDate
+                            ? formatUKDate(formData.cancellationDate)
+                            : "Select date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 dark:bg-gray-800">
+                        <Calendar
+                          mode="single"
+                          selected={formData.cancellationDate}
+                          onSelect={(date) =>
+                            handleDateChange("cancellationDate", date)
+                          }
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="reasonForAction"
+                      className="dark:text-gray-300"
+                    >
+                      Reason For Action*
+                    </Label>
+                    <SearchableSelect
+                      options={options.reasonForAction}
+                      value={formData.reasonForAction}
+                      onChange={(value) =>
+                        handleChange("reasonForAction", value)
+                      }
+                      placeholder="Select reason"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="reasonDetail"
+                      className="dark:text-gray-300"
+                    >
+                      Reason Detail
+                    </Label>
+                    <Textarea
+                      id="reasonDetail"
+                      value={formData.reasonDetail}
+                      onChange={(e) =>
+                        handleChange("reasonDetail", e.target.value)
+                      }
+                      placeholder="Enter reason details or leave empty for 'Not Given'"
+                      className="min-h-[80px] dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="isLossDeal" className="dark:text-gray-300">
+                      Is Loss Deal*
+                    </Label>
+                    <SearchableSelect
+                      options={options.isLossDeal}
+                      value={formData.isLossDeal}
+                      onChange={(value) => handleChange("isLossDeal", value)}
+                      placeholder="Select option"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="mt-8 flex justify-end">
               <Button
-                onClick={() => setErrorModalOpen(false)}
-                className="w-full dark:bg-primary dark:hover:bg-primary/90"
+                type="submit"
+                size="lg"
+                className="bg-primary hover:bg-primary/90 dark:bg-primary dark:hover:bg-primary/90"
               >
-                OK
+                Register Order
               </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+            </div>
+          </form>
+
+          {/* Error Modal */}
+          <Dialog open={errorModalOpen} onOpenChange={setErrorModalOpen}>
+            <DialogContent className="sm:max-w-md dark:bg-gray-800">
+              <DialogHeader>
+                <DialogTitle className="flex items-center text-red-500 dark:text-red-400">
+                  <span>Validation Error</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setErrorModalOpen(false)}
+                    className="ml-auto h-8 w-8 p-0"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </DialogTitle>
+              </DialogHeader>
+              <div className="py-4 dark:text-white">{firstError.message}</div>
+              <DialogFooter>
+                <Button
+                  onClick={() => setErrorModalOpen(false)}
+                  className="w-full dark:bg-primary dark:hover:bg-primary/90"
+                >
+                  OK
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
     </div>
   );

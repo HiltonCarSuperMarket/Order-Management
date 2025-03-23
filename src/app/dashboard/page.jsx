@@ -117,12 +117,14 @@ export default function LandingPage() {
                   <ChevronRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <Button
-                variant="outline"
-                className="border-[#2C45AA] text-[#2C45AA] hover:bg-[#2C45AA] hover:text-white text-lg px-8 py-6 dark:border-[#4e6cde] dark:text-[#4e6cde] dark:hover:bg-[#4e6cde] dark:hover:text-white"
-              >
-                Register Order
-              </Button>
+              <Link href={"/register-order"}>
+                <Button
+                  variant="outline"
+                  className="border-[#2C45AA] text-[#2C45AA] hover:bg-[#2C45AA] hover:text-white text-lg px-8 py-6 dark:border-[#4e6cde] dark:text-[#4e6cde] dark:hover:bg-[#4e6cde] dark:hover:text-white"
+                >
+                  Register Order
+                </Button>
+              </Link>
             </motion.div>
           </motion.div>
           <motion.div
@@ -308,13 +310,13 @@ export default function LandingPage() {
               order management system.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Link href="/signup">
+              <Link href="/view-orders">
                 <Button className="bg-white text-[#2C45AA] hover:bg-gray-100 text-lg px-8 py-6 dark:text-[#1a2f7a]">
                   View Orders
                   <ChevronRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <Link href="/login">
+              <Link href="/register-order">
                 <Button
                   variant="outline"
                   className="border-white text-[#2C45AA] dark:text-white hover:bg-white hover:text-[#2C45AA]/90 text-lg px-8 py-6 dark:hover:text-white/90"
