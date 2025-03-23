@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useTheme } from "next-themes";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, useAnimation } from "framer-motion";
 import { format, subMonths } from "date-fns";
 import {
@@ -33,44 +33,31 @@ import {
   ChevronLeft,
   ChevronRight,
   Filter,
-  Moon,
   Search,
-  Sun,
+  Trash2,
   X,
+  Edit,
 } from "lucide-react";
 import Navbar from "@/components/shared/navbar";
+import { toast } from "sonner";
+import DeleteOrderDialog from "@/components/shared/delete-order-dialog";
 
-// Define filter options
-const filterOptions = {
-  enquiryType: ["Phone", "Walk-in", "Online", "Referral"],
-  salesExecutive: ["John Doe", "Jane Smith", "Mike Johnson", "Sarah Williams"],
-  location: ["North", "South", "East", "West", "Central"],
-  isPCTSheetReceivedWithinTime: ["Yes", "No"],
-  pctStatus: ["Completed", "Pending", "Rejected"],
-  isShowUp: ["Yes", "No"],
-  isDeal: ["Yes", "No"],
-  reasonForAction: ["Price", "Availability", "Features", "Service", "Other"],
-  isLossDeal: ["Yes", "No"],
-  orderStatus: ["Confirmed", "Processing", "Delivered", "Cancelled"],
+// And add this state and useEffect instead:
+const initialFilterOptions = {
+  enquiryType: [],
+  salesExecutive: [],
+  location: [],
+  isPCTSheetReceivedWithinTime: [],
+  pctStatus: [],
+  isShowUp: [],
+  isDeal: [],
+  reasonForAction: [],
+  isLossDeal: [],
+  orderStatus: [],
 };
-
-// Generate last 12 months for dropdown
-const generateMonths = () => {
-  const months = [];
-  const today = new Date();
-
-  for (let i = 0; i < 12; i++) {
-    const date = subMonths(today, i);
-    const monthYear = format(date, "MMM yyyy");
-    months.push(monthYear);
-  }
-
-  return months;
-};
-
-const availableMonths = generateMonths();
 
 export default function OrdersDashboard() {
+  const router = useRouter();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -80,6 +67,22 @@ export default function OrdersDashboard() {
   const [activeFilters, setActiveFilters] = useState({});
   const [months, setMonths] = useState([]);
   const controls = useAnimation();
+  const [filterOptions, setFilterOptions] = useState({
+    enquiryType: [],
+    salesExecutive: [],
+    location: [],
+    isPctSheetReceivedWithinTime: [],
+    pctStatus: [],
+    isShowUp: [],
+    isDeal: [],
+    reasonForAction: [],
+    isLossDeal: [],
+    orderStatus: [],
+  });
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [orderToDelete, setOrderToDelete] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   console.log("ORDERS", orders);
 
@@ -153,51 +156,49 @@ export default function OrdersDashboard() {
     },
   };
 
-  // Fetch orders with filters
-  const fetchOrders = async () => {
-    setLoading(true);
-    try {
-      let url = `/api/orders?page=${currentPage}&limit=${limit}`;
+  // Fetch filter options from API
+  useEffect(() => {
+    const fetchFilterOptions = async () => {
+      try {
+        const response = await fetch("/api/filter-options");
+        const data = await response.json();
 
-      if (search) {
-        url += `&search=${encodeURIComponent(search)}`;
+        // Map API response to filterOptions structure
+        setFilterOptions({
+          enquiryType: data.enquiryType || [],
+          salesExecutive: data.salesExecutive || [],
+          location: data.location || [],
+          isPctSheetReceivedWithinTime: data.isPCTSheetReceivedWithinTime || [],
+          pctStatus: data.pctStatus || [],
+          isShowUp: data.isShowUp || [],
+          isDeal: data.isDeal || [],
+          reasonForAction: data.reasonForAction || [],
+          isLossDeal: data.isLossDeal || [],
+          orderStatus: data.orderStatus || [],
+        });
+      } catch (error) {
+        console.error("Failed to fetch filter options:", error);
       }
+    };
 
-      // Add filter parameters
-      Object.entries(activeFilters).forEach(([key, values]) => {
-        if (values.length > 0) {
-          url += `&${key}=${encodeURIComponent(values.join(","))}`;
-        }
-      });
+    fetchFilterOptions();
+  }, []);
 
-      // Add column filter parameters
-      Object.entries(columnFilters).forEach(([key, values]) => {
-        if (values.length > 0) {
-          url += `&${key}=${encodeURIComponent(values.join(","))}`;
-        }
-      });
+  // Generate last 12 months for dropdown
+  const generateMonths = () => {
+    const months = [];
+    const today = new Date();
 
-      // Add months filter
-      if (months.length > 0) {
-        url += `&months=${encodeURIComponent(months.join(","))}`;
-      }
-
-      const response = await fetch(url);
-      const data = await response.json();
-
-      if (data.success) {
-        setOrders(data.data);
-        setTotalOrders(data.totalOrders);
-        controls.start("visible");
-      } else {
-        console.error("Error fetching orders:", data.error);
-      }
-    } catch (error) {
-      console.error("Failed to fetch orders:", error);
-    } finally {
-      setLoading(false);
+    for (let i = 0; i < 12; i++) {
+      const date = subMonths(today, i);
+      const monthYear = format(date, "MMM yyyy");
+      months.push(monthYear);
     }
+
+    return months;
   };
+
+  const availableMonths = generateMonths();
 
   // Format date for display
   const formatDate = (dateString) => {
@@ -317,7 +318,7 @@ export default function OrdersDashboard() {
   // Effect to fetch orders when filters or pagination changes
   useEffect(() => {
     fetchOrders();
-  }, [currentPage, limit, activeFilters, columnFilters, months]);
+  }, [currentPage, limit, activeFilters, columnFilters, months, search]);
 
   // Handle search
   const handleSearch = () => {
@@ -337,6 +338,65 @@ export default function OrdersDashboard() {
     return [...new Set(values)].filter(Boolean);
   };
 
+  // Fetch orders with filters
+  const fetchOrders = async () => {
+    setLoading(true);
+    try {
+      let url = `/api/orders?page=${currentPage}&limit=${limit}`;
+
+      if (search) {
+        url += `&search=${encodeURIComponent(search)}`;
+      }
+
+      // Add filter parameters
+      Object.entries(activeFilters).forEach(([key, values]) => {
+        if (values.length > 0) {
+          url += `&${key}=${encodeURIComponent(values.join(","))}`;
+        }
+      });
+
+      // Add column filter parameters
+      Object.entries(columnFilters).forEach(([key, values]) => {
+        if (values.length > 0) {
+          url += `&${key}=${encodeURIComponent(values.join(","))}`;
+        }
+      });
+
+      // Add months filter
+      if (months.length > 0) {
+        url += `&months=${encodeURIComponent(months.join(","))}`;
+      }
+
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.success) {
+        setOrders(data.data);
+        setTotalOrders(data.totalOrders);
+        controls.start("visible");
+      } else {
+        console.error("Error fetching orders:", data.error);
+      }
+    } catch (error) {
+      console.error("Failed to fetch orders:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle order deletion
+  const handleOrderDeleted = (deletedOrderId) => {
+    setOrders((prevOrders) =>
+      prevOrders.filter((order) => order._id !== deletedOrderId)
+    );
+    setTotalOrders((prev) => prev - 1);
+  };
+
+  // Handle edit order (redirect to order detail page)
+  const handleEditOrder = (orderId) => {
+    router.push(`/edit-order/${orderId}`);
+  };
+
   // Table columns configuration
   const columns = [
     { key: "entryDate", label: "Entry Date", format: formatDate },
@@ -352,7 +412,6 @@ export default function OrdersDashboard() {
     {
       key: "isPctSheetReceivedWithinTime",
       label: "PCT Received",
-      filterable: true,
       badge: true,
       badgeVariant: (value) => (value === "Yes" ? "success" : "destructive"),
     },
@@ -596,8 +655,8 @@ export default function OrdersDashboard() {
                                   align="start"
                                   className="w-56 max-h-[300px] overflow-y-auto dark:hover:bg-gray-800 "
                                 >
-                                  {getUniqueColumnValues(column.key).map(
-                                    (value) => (
+                                  {column.key === "enquiryType" &&
+                                    filterOptions.enquiryType.map((value) => (
                                       <DropdownMenuCheckboxItem
                                         key={`${column.key}-${value}`}
                                         checked={(
@@ -614,14 +673,235 @@ export default function OrdersDashboard() {
                                       >
                                         {value}
                                       </DropdownMenuCheckboxItem>
-                                    )
-                                  )}
+                                    ))}
+
+                                  {column.key === "salesExecutive" &&
+                                    filterOptions.salesExecutive.map(
+                                      (value) => (
+                                        <DropdownMenuCheckboxItem
+                                          key={`${column.key}-${value}`}
+                                          checked={(
+                                            columnFilters[column.key] || []
+                                          ).includes(value)}
+                                          onCheckedChange={(checked) =>
+                                            handleColumnFilterChange(
+                                              column.key,
+                                              value,
+                                              checked
+                                            )
+                                          }
+                                          className={"hover:bg-gray-800"}
+                                        >
+                                          {value}
+                                        </DropdownMenuCheckboxItem>
+                                      )
+                                    )}
+
+                                  {column.key === "location" &&
+                                    filterOptions.location.map((value) => (
+                                      <DropdownMenuCheckboxItem
+                                        key={`${column.key}-${value}`}
+                                        checked={(
+                                          columnFilters[column.key] || []
+                                        ).includes(value)}
+                                        onCheckedChange={(checked) =>
+                                          handleColumnFilterChange(
+                                            column.key,
+                                            value,
+                                            checked
+                                          )
+                                        }
+                                        className={"hover:bg-gray-800"}
+                                      >
+                                        {value}
+                                      </DropdownMenuCheckboxItem>
+                                    ))}
+
+                                  {column.key ===
+                                    "isPctSheetReceivedWithinTime" &&
+                                    filterOptions.isPCTSheetReceivedWithinTime?.map(
+                                      (value) => (
+                                        <DropdownMenuCheckboxItem
+                                          key={`${column.key}-${value}`}
+                                          checked={(
+                                            columnFilters[column.key] || []
+                                          ).includes(value)}
+                                          onCheckedChange={(checked) =>
+                                            handleColumnFilterChange(
+                                              column.key,
+                                              value,
+                                              checked
+                                            )
+                                          }
+                                          className={"hover:bg-gray-800"}
+                                        >
+                                          {value}
+                                        </DropdownMenuCheckboxItem>
+                                      )
+                                    )}
+
+                                  {column.key === "pctStatus" &&
+                                    filterOptions.pctStatus.map((value) => (
+                                      <DropdownMenuCheckboxItem
+                                        key={`${column.key}-${value}`}
+                                        checked={(
+                                          columnFilters[column.key] || []
+                                        ).includes(value)}
+                                        onCheckedChange={(checked) =>
+                                          handleColumnFilterChange(
+                                            column.key,
+                                            value,
+                                            checked
+                                          )
+                                        }
+                                        className={"hover:bg-gray-800"}
+                                      >
+                                        {value}
+                                      </DropdownMenuCheckboxItem>
+                                    ))}
+
+                                  {column.key === "isShowUp" &&
+                                    filterOptions.isShowUp.map((value) => (
+                                      <DropdownMenuCheckboxItem
+                                        key={`${column.key}-${value}`}
+                                        checked={(
+                                          columnFilters[column.key] || []
+                                        ).includes(value)}
+                                        onCheckedChange={(checked) =>
+                                          handleColumnFilterChange(
+                                            column.key,
+                                            value,
+                                            checked
+                                          )
+                                        }
+                                        className={"hover:bg-gray-800"}
+                                      >
+                                        {value}
+                                      </DropdownMenuCheckboxItem>
+                                    ))}
+
+                                  {column.key === "isDeal" &&
+                                    filterOptions.isDeal.map((value) => (
+                                      <DropdownMenuCheckboxItem
+                                        key={`${column.key}-${value}`}
+                                        checked={(
+                                          columnFilters[column.key] || []
+                                        ).includes(value)}
+                                        onCheckedChange={(checked) =>
+                                          handleColumnFilterChange(
+                                            column.key,
+                                            value,
+                                            checked
+                                          )
+                                        }
+                                        className={"hover:bg-gray-800"}
+                                      >
+                                        {value}
+                                      </DropdownMenuCheckboxItem>
+                                    ))}
+
+                                  {column.key === "reasonForAction" &&
+                                    filterOptions.reasonForAction.map(
+                                      (value) => (
+                                        <DropdownMenuCheckboxItem
+                                          key={`${column.key}-${value}`}
+                                          checked={(
+                                            columnFilters[column.key] || []
+                                          ).includes(value)}
+                                          onCheckedChange={(checked) =>
+                                            handleColumnFilterChange(
+                                              column.key,
+                                              value,
+                                              checked
+                                            )
+                                          }
+                                          className={"hover:bg-gray-800"}
+                                        >
+                                          {value}
+                                        </DropdownMenuCheckboxItem>
+                                      )
+                                    )}
+
+                                  {column.key === "isLossDeal" &&
+                                    filterOptions.isLossDeal.map((value) => (
+                                      <DropdownMenuCheckboxItem
+                                        key={`${column.key}-${value}`}
+                                        checked={(
+                                          columnFilters[column.key] || []
+                                        ).includes(value)}
+                                        onCheckedChange={(checked) =>
+                                          handleColumnFilterChange(
+                                            column.key,
+                                            value,
+                                            checked
+                                          )
+                                        }
+                                        className={"hover:bg-gray-800"}
+                                      >
+                                        {value}
+                                      </DropdownMenuCheckboxItem>
+                                    ))}
+
+                                  {column.key === "orderStatus" &&
+                                    filterOptions.orderStatus.map((value) => (
+                                      <DropdownMenuCheckboxItem
+                                        key={`${column.key}-${value}`}
+                                        checked={(
+                                          columnFilters[column.key] || []
+                                        ).includes(value)}
+                                        onCheckedChange={(checked) =>
+                                          handleColumnFilterChange(
+                                            column.key,
+                                            value,
+                                            checked
+                                          )
+                                        }
+                                        className={"hover:bg-gray-800"}
+                                      >
+                                        {value}
+                                      </DropdownMenuCheckboxItem>
+                                    ))}
+
+                                  {/* For columns not covered by the API, fall back to the current page data */}
+                                  {![
+                                    "enquiryType",
+                                    "salesExecutive",
+                                    "location",
+                                    "isPctSheetReceivedWithinTime",
+                                    "pctStatus",
+                                    "isShowUp",
+                                    "isDeal",
+                                    "reasonForAction",
+                                    "isLossDeal",
+                                    "orderStatus",
+                                  ].includes(column.key) &&
+                                    getUniqueColumnValues(column.key).map(
+                                      (value) => (
+                                        <DropdownMenuCheckboxItem
+                                          key={`${column.key}-${value}`}
+                                          checked={(
+                                            columnFilters[column.key] || []
+                                          ).includes(value)}
+                                          onCheckedChange={(checked) =>
+                                            handleColumnFilterChange(
+                                              column.key,
+                                              value,
+                                              checked
+                                            )
+                                          }
+                                          className={"hover:bg-gray-800"}
+                                        >
+                                          {value}
+                                        </DropdownMenuCheckboxItem>
+                                      )
+                                    )}
                                 </DropdownMenuContent>
                               </DropdownMenu>
                             )}
                           </div>
                         </TableHead>
                       ))}
+                      <TableHead className="w-[120px]">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -629,7 +909,7 @@ export default function OrdersDashboard() {
                       {loading ? (
                         <TableRow>
                           <TableCell
-                            colSpan={columns.length}
+                            colSpan={columns.length + 1}
                             className="h-24 text-center"
                           >
                             <motion.div
@@ -650,7 +930,7 @@ export default function OrdersDashboard() {
                       ) : orders.length === 0 ? (
                         <TableRow>
                           <TableCell
-                            colSpan={columns.length}
+                            colSpan={columns.length + 1}
                             className="h-24 text-center"
                           >
                             No orders found
@@ -684,6 +964,29 @@ export default function OrdersDashboard() {
                                 )}
                               </TableCell>
                             ))}
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="cursor-pointer"
+                                  onClick={() => handleEditOrder(order._id)}
+                                >
+                                  <Edit className="text-blue-500 w-4 h-4" />
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="cursor-pointer"
+                                  onClick={() => {
+                                    setOrderToDelete(order._id);
+                                    setIsDeleteDialogOpen(true);
+                                  }}
+                                >
+                                  <Trash2 className="text-red-500 w-4 h-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
                           </motion.tr>
                         ))
                       )}
@@ -781,6 +1084,14 @@ export default function OrdersDashboard() {
           </Card>
         </motion.div>
       </motion.div>
+
+      {/* Delete Order Dialog */}
+      <DeleteOrderDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        orderId={orderToDelete}
+        onOrderDeleted={handleOrderDeleted}
+      />
     </>
   );
 }
