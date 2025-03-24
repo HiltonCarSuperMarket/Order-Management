@@ -71,11 +71,18 @@ const Navbar = () => {
             Register Order
           </Link>
           <Link
+            href="/view-active-orders"
+            className="text-gray-700 hover:text-[#2C45AA] font-medium py-2 dark:text-gray-300 dark:hover:text-[#4e6cde]"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            View Active Orders
+          </Link>
+          <Link
             href="/view-orders"
             className="text-gray-700 hover:text-[#2C45AA] font-medium py-2 dark:text-gray-300 dark:hover:text-[#4e6cde]"
             onClick={() => setMobileMenuOpen(false)}
           >
-            View Orders
+            View Inactive Orders
           </Link>
           {ADMIN_ROLE && (
             <Link
@@ -130,23 +137,34 @@ const Navbar = () => {
             className="md:hidden bg-white dark:bg-gray-900"
           >
             <div className="container mx-auto px-4 py-4 flex flex-col space-y-4">
-              <Link
-                href="/signup"
-                className="text-gray-700 hover:text-[#2C45AA] font-medium py-2 dark:text-gray-300 dark:hover:text-[#4e6cde]"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Create User
-              </Link>
-
               {ADMIN_ROLE && (
+                <Link
+                  href="/signup"
+                  className="text-gray-700 hover:text-[#2C45AA] font-medium py-2 dark:text-gray-300 dark:hover:text-[#4e6cde]"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Create User
+                </Link>
+              )}
+
+              {
+                <Link
+                  href="/view-active-orders"
+                  className="text-gray-700 hover:text-[#2C45AA] font-medium py-2 dark:text-gray-300 dark:hover:text-[#4e6cde]"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  View Active Orders
+                </Link>
+              }
+              {
                 <Link
                   href="/view-orders"
                   className="text-gray-700 hover:text-[#2C45AA] font-medium py-2 dark:text-gray-300 dark:hover:text-[#4e6cde]"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  View Orders
+                  View Inactive Orders
                 </Link>
-              )}
+              }
               {role && (
                 <Button
                   className="text-white  bg-red-600  hover:bg-red-600/90 hover:text-white/90 font-medium dark:text-white dark:hover:text-white/90"

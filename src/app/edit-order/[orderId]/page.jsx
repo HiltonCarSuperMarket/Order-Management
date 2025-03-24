@@ -157,13 +157,12 @@ export default function EditOrderPage() {
     location: "",
     isPctSheetReceivedWithinTime: "",
     pctStatus: "",
-    orderStatus: "",
-    isShowUp: "",
-    isDeal: "",
-    cancellationDate: getCurrentUKDateTime().date,
-    reasonForAction: "",
-    reasonDetail: "",
-    isLossDeal: "",
+    orderStatus: "Active",
+    isShowUp: null,
+    isDeal: null,
+    reasonForAction: null,
+    reasonDetail: null,
+    isLossDeal: null,
   });
 
   const [errors, setErrors] = useState({});
@@ -177,7 +176,7 @@ export default function EditOrderPage() {
     location: [],
     isPctSheetReceivedWithinTime: [],
     pctStatus: [],
-    orderStatus: [],
+    orderStatus: ["Active", "Inactive"],
     isShowUp: [],
     isDeal: [],
     reasonForAction: [],
@@ -206,7 +205,6 @@ export default function EditOrderPage() {
             entryDate: parseDate(orderData.entryDate),
             openingDate: parseDate(orderData.openingDate),
             closingDate: parseDate(orderData.closingDate),
-            cancellationDate: parseDate(orderData.cancellationDate),
           };
 
           setFormData(parsedData);
@@ -229,10 +227,21 @@ export default function EditOrderPage() {
 
   // Handle input changes
   const handleChange = (field, value) => {
-    setFormData({
+    const updatedFormData = {
       ...formData,
       [field]: value,
-    });
+    };
+
+    // If changing order status to Active, reset the additional fields to null
+    if (field === "orderStatus" && value === "Active") {
+      updatedFormData.isShowUp = null;
+      updatedFormData.isDeal = null;
+      updatedFormData.reasonForAction = null;
+      updatedFormData.reasonDetail = null;
+      updatedFormData.isLossDeal = null;
+    }
+
+    setFormData(updatedFormData);
 
     // Clear error when field is updated
     if (errors[field]) {
@@ -300,14 +309,14 @@ export default function EditOrderPage() {
       }
     }
 
-    // Required fields
+    // Required fields for all orders
     const requiredFields = [
       { field: "entryDate", label: "Entry date" },
       { field: "entryTime", label: "Entry time" },
       { field: "enquiryType", label: "Enquiry type" },
       { field: "openingDate", label: "Order date" },
-      { field: "closingDate", label: "Collection date" },
-      { field: "closingTime", label: "Collection time" },
+      { field: "closingDate", label: "Closing date" },
+      { field: "closingTime", label: "Closing time" },
       { field: "salesExecutive", label: "Sales executive" },
       { field: "location", label: "Location" },
       {
@@ -316,12 +325,17 @@ export default function EditOrderPage() {
       },
       { field: "pctStatus", label: "PCT status" },
       { field: "orderStatus", label: "Order status" },
+    ];
+
+    // Additional required fields for inactive orders
+    const inactiveRequiredFields = [
       { field: "isShowUp", label: "Show up status" },
       { field: "isDeal", label: "Deal status" },
       { field: "reasonForAction", label: "Reason for action" },
       { field: "isLossDeal", label: "Loss deal status" },
     ];
 
+    // Check required fields for all orders
     requiredFields.forEach(({ field, label }) => {
       if (!formData[field]) {
         newErrors[field] = `${label} is required`;
@@ -331,6 +345,19 @@ export default function EditOrderPage() {
         }
       }
     });
+
+    // Check additional required fields for inactive orders
+    if (formData.orderStatus === "Inactive") {
+      inactiveRequiredFields.forEach(({ field, label }) => {
+        if (!formData[field]) {
+          newErrors[field] = `${label} is required`;
+          if (!firstErrorField) {
+            firstErrorField = field;
+            firstErrorMessage = `${label} is required`;
+          }
+        }
+      });
+    }
 
     // Date validations
     if (formData.openingDate && formData.entryDate) {
@@ -352,30 +379,51 @@ export default function EditOrderPage() {
 
       if (closingDateStr < openingDateStr) {
         newErrors.closingDate =
-          "Collection date cannot be earlier than order date";
+          "Closing date cannot be earlier than order date";
         if (!firstErrorField) {
           firstErrorField = "closingDate";
-          firstErrorMessage =
-            "Collection date cannot be earlier than order date";
+          firstErrorMessage = "Closing date cannot be earlier than order date";
         }
       }
     }
 
-    // Validate cancellation date is not earlier than order date
-    if (formData.cancellationDate && formData.openingDate) {
-      const cancellationDateStr = format(
-        formData.cancellationDate,
-        "yyyy-MM-dd"
-      );
-      const openingDateStr = format(formData.openingDate, "yyyy-MM-dd");
+    // Additional validation for inactive orders
+    if (formData.orderStatus === "Inactive") {
+      // 1. If order is inactive, closing date can't be in the future
+      const currentDate = new Date();
+      currentDate.setHours(0, 0, 0, 0); // Reset time to start of day
 
-      if (cancellationDateStr < openingDateStr) {
-        newErrors.cancellationDate =
-          "Cancellation date cannot be earlier than order date";
+      const closingDate = new Date(formData.closingDate);
+      closingDate.setHours(0, 0, 0, 0); // Reset time to start of day
+
+      if (closingDate > currentDate) {
+        newErrors.closingDate =
+          "Closing date cannot be in the future for inactive orders";
         if (!firstErrorField) {
-          firstErrorField = "cancellationDate";
+          firstErrorField = "closingDate";
           firstErrorMessage =
-            "Cancellation date cannot be earlier than order date";
+            "Closing date cannot be in the future for inactive orders";
+        }
+      }
+
+      // 2. If order is inactive, isPctSheetReceivedWithinTime and pctStatus should not be "waiting"
+      if (formData.isPctSheetReceivedWithinTime === "Waiting") {
+        newErrors.isPctSheetReceivedWithinTime =
+          "PCT sheet received status cannot be 'Waiting' for inactive orders";
+        if (!firstErrorField) {
+          firstErrorField = "isPctSheetReceivedWithinTime";
+          firstErrorMessage =
+            "PCT sheet received status cannot be 'Waiting' for inactive orders";
+        }
+      }
+
+      if (formData.pctStatus === "Waiting") {
+        newErrors.pctStatus =
+          "PCT status cannot be 'Waiting' for inactive orders";
+        if (!firstErrorField) {
+          firstErrorField = "pctStatus";
+          firstErrorMessage =
+            "PCT status cannot be 'Waiting' for inactive orders";
         }
       }
     }
@@ -410,11 +458,26 @@ export default function EditOrderPage() {
       try {
         setSubmitting(true);
 
-        // If reasonDetail is empty, set it to "Not Given"
-        const finalFormData = {
-          ...formData,
-          reasonDetail: formData.reasonDetail || "Not Given",
-        };
+        // Prepare form data based on order status
+        let finalFormData = { ...formData };
+
+        if (finalFormData.orderStatus === "Active") {
+          // If order is Active, set additional fields to null
+          finalFormData = {
+            ...finalFormData,
+            isShowUp: null,
+            isDeal: null,
+            reasonForAction: null,
+            reasonDetail: null,
+            isLossDeal: null,
+          };
+        } else {
+          // If order is Inactive and reasonDetail is empty, set it to "No Reason Mentioned"
+          finalFormData = {
+            ...finalFormData,
+            reasonDetail: finalFormData.reasonDetail || "No Reason Mentioned",
+          };
+        }
 
         // Format dates for MongoDB storage
         const formattedData = {
@@ -422,9 +485,6 @@ export default function EditOrderPage() {
           entryDate: formatDateForMongoDB(finalFormData.entryDate),
           openingDate: formatDateForMongoDB(finalFormData.openingDate),
           closingDate: formatDateForMongoDB(finalFormData.closingDate),
-          cancellationDate: formatDateForMongoDB(
-            finalFormData.cancellationDate
-          ),
         };
 
         // Update order data
@@ -456,6 +516,9 @@ export default function EditOrderPage() {
       </div>
     );
   }
+
+  // Determine if we should show the additional fields for inactive orders
+  const showInactiveFields = formData.orderStatus === "Inactive";
 
   return (
     <div>
@@ -505,6 +568,9 @@ export default function EditOrderPage() {
                         />
                       </PopoverContent>
                     </Popover>
+                    {errors.entryDate && (
+                      <p className="text-sm text-red-500">{errors.entryDate}</p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -523,6 +589,9 @@ export default function EditOrderPage() {
                       />
                       <Clock className="ml-2 h-4 w-4 text-gray-500 dark:text-gray-400" />
                     </div>
+                    {errors.entryTime && (
+                      <p className="text-sm text-red-500">{errors.entryTime}</p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -544,6 +613,11 @@ export default function EditOrderPage() {
                       placeholder="ABC123"
                       className="dark:bg-gray-700 dark:text-white dark:border-gray-600"
                     />
+                    {errors.registration && (
+                      <p className="text-sm text-red-500">
+                        {errors.registration}
+                      </p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -556,6 +630,11 @@ export default function EditOrderPage() {
                       onChange={(value) => handleChange("enquiryType", value)}
                       placeholder="Select enquiry type"
                     />
+                    {errors.enquiryType && (
+                      <p className="text-sm text-red-500">
+                        {errors.enquiryType}
+                      </p>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -595,11 +674,16 @@ export default function EditOrderPage() {
                         />
                       </PopoverContent>
                     </Popover>
+                    {errors.openingDate && (
+                      <p className="text-sm text-red-500">
+                        {errors.openingDate}
+                      </p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="closingDate" className="dark:text-gray-300">
-                      Collection Date*
+                      Closing Date*
                     </Label>
                     <Popover>
                       <PopoverTrigger asChild>
@@ -624,11 +708,16 @@ export default function EditOrderPage() {
                         />
                       </PopoverContent>
                     </Popover>
+                    {errors.closingDate && (
+                      <p className="text-sm text-red-500">
+                        {errors.closingDate}
+                      </p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="closingTime" className="dark:text-gray-300">
-                      Collection Time*
+                      Closing Time*
                     </Label>
                     <div className="flex items-center">
                       <Input
@@ -642,6 +731,11 @@ export default function EditOrderPage() {
                       />
                       <Clock className="ml-2 h-4 w-4 text-gray-500 dark:text-gray-400" />
                     </div>
+                    {errors.closingTime && (
+                      <p className="text-sm text-red-500">
+                        {errors.closingTime}
+                      </p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -659,6 +753,11 @@ export default function EditOrderPage() {
                       }
                       placeholder="Select sales executive"
                     />
+                    {errors.salesExecutive && (
+                      <p className="text-sm text-red-500">
+                        {errors.salesExecutive}
+                      </p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -671,6 +770,9 @@ export default function EditOrderPage() {
                       onChange={(value) => handleChange("location", value)}
                       placeholder="Select location"
                     />
+                    {errors.location && (
+                      <p className="text-sm text-red-500">{errors.location}</p>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -694,6 +796,9 @@ export default function EditOrderPage() {
                       placeholder="Customer name"
                       className="dark:bg-gray-700 dark:text-white dark:border-gray-600"
                     />
+                    {errors.customer && (
+                      <p className="text-sm text-red-500">{errors.customer}</p>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -721,6 +826,11 @@ export default function EditOrderPage() {
                       }
                       placeholder="Select option"
                     />
+                    {errors.isPctSheetReceivedWithinTime && (
+                      <p className="text-sm text-red-500">
+                        {errors.isPctSheetReceivedWithinTime}
+                      </p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -733,6 +843,9 @@ export default function EditOrderPage() {
                       onChange={(value) => handleChange("pctStatus", value)}
                       placeholder="Select PCT status"
                     />
+                    {errors.pctStatus && (
+                      <p className="text-sm text-red-500">{errors.pctStatus}</p>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -755,122 +868,133 @@ export default function EditOrderPage() {
                       onChange={(value) => handleChange("orderStatus", value)}
                       placeholder="Select order status"
                     />
+                    {errors.orderStatus && (
+                      <p className="text-sm text-red-500">
+                        {errors.orderStatus}
+                      </p>
+                    )}
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="isShowUp" className="dark:text-gray-300">
-                      Show Up*
-                    </Label>
-                    <SearchableSelect
-                      options={options.isShowUp}
-                      value={formData.isShowUp}
-                      onChange={(value) => handleChange("isShowUp", value)}
-                      placeholder="Select option"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="isDeal" className="dark:text-gray-300">
-                      Is Deal*
-                    </Label>
-                    <SearchableSelect
-                      options={options.isDeal}
-                      value={formData.isDeal}
-                      onChange={(value) => handleChange("isDeal", value)}
-                      placeholder="Select option"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Cancellation Details */}
-              <Card className="dark:bg-gray-800">
-                <CardHeader>
-                  <CardTitle className="text-lg dark:text-white">
-                    Cancellation Details
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="cancellationDate"
-                      className="dark:text-gray-300"
-                    >
-                      Cancellation Date*
-                    </Label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className="w-full justify-start text-left font-normal dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                  {/* Only show these fields if order status is Inactive */}
+                  {showInactiveFields && (
+                    <>
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="isShowUp"
+                          className="dark:text-gray-300"
                         >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {formData.cancellationDate
-                            ? format(formData.cancellationDate, "dd/MM/yyyy")
-                            : "Select date"}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 dark:bg-gray-800">
-                        <Calendar
-                          mode="single"
-                          selected={formData.cancellationDate}
-                          onSelect={(date) =>
-                            handleDateChange("cancellationDate", date)
-                          }
-                          initialFocus
+                          Show Up*
+                        </Label>
+                        <SearchableSelect
+                          options={options.isShowUp}
+                          value={formData.isShowUp}
+                          onChange={(value) => handleChange("isShowUp", value)}
+                          placeholder="Select option"
                         />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
+                        {errors.isShowUp && (
+                          <p className="text-sm text-red-500">
+                            {errors.isShowUp}
+                          </p>
+                        )}
+                      </div>
 
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="reasonForAction"
-                      className="dark:text-gray-300"
-                    >
-                      Reason For Action*
-                    </Label>
-                    <SearchableSelect
-                      options={options.reasonForAction}
-                      value={formData.reasonForAction}
-                      onChange={(value) =>
-                        handleChange("reasonForAction", value)
-                      }
-                      placeholder="Select reason"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="reasonDetail"
-                      className="dark:text-gray-300"
-                    >
-                      Reason Detail
-                    </Label>
-                    <Textarea
-                      id="reasonDetail"
-                      value={formData.reasonDetail}
-                      onChange={(e) =>
-                        handleChange("reasonDetail", e.target.value)
-                      }
-                      placeholder="Enter reason details or leave empty for 'Not Given'"
-                      className="min-h-[80px] dark:bg-gray-700 dark:text-white dark:border-gray-600"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="isLossDeal" className="dark:text-gray-300">
-                      Is Loss Deal*
-                    </Label>
-                    <SearchableSelect
-                      options={options.isLossDeal}
-                      value={formData.isLossDeal}
-                      onChange={(value) => handleChange("isLossDeal", value)}
-                      placeholder="Select option"
-                    />
-                  </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="isDeal" className="dark:text-gray-300">
+                          Is Deal*
+                        </Label>
+                        <SearchableSelect
+                          options={options.isDeal}
+                          value={formData.isDeal}
+                          onChange={(value) => handleChange("isDeal", value)}
+                          placeholder="Select option"
+                        />
+                        {errors.isDeal && (
+                          <p className="text-sm text-red-500">
+                            {errors.isDeal}
+                          </p>
+                        )}
+                      </div>
+                    </>
+                  )}
                 </CardContent>
               </Card>
+
+              {/* Cancellation Details - Only show if order status is Inactive */}
+              {showInactiveFields && (
+                <Card className="dark:bg-gray-800">
+                  <CardHeader>
+                    <CardTitle className="text-lg dark:text-white">
+                      Cancellation Details
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="reasonForAction"
+                        className="dark:text-gray-300"
+                      >
+                        Reason For Action*
+                      </Label>
+                      <SearchableSelect
+                        options={options.reasonForAction}
+                        value={formData.reasonForAction}
+                        onChange={(value) =>
+                          handleChange("reasonForAction", value)
+                        }
+                        placeholder="Select reason"
+                      />
+                      {errors.reasonForAction && (
+                        <p className="text-sm text-red-500">
+                          {errors.reasonForAction}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="reasonDetail"
+                        className="dark:text-gray-300"
+                      >
+                        Reason Detail
+                      </Label>
+                      <Textarea
+                        id="reasonDetail"
+                        value={formData.reasonDetail}
+                        onChange={(e) =>
+                          handleChange("reasonDetail", e.target.value)
+                        }
+                        placeholder="Enter reason details or leave empty for 'No Reason Mentioned'"
+                        className="min-h-[80px] dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                      />
+                      {errors.reasonDetail && (
+                        <p className="text-sm text-red-500">
+                          {errors.reasonDetail}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="isLossDeal"
+                        className="dark:text-gray-300"
+                      >
+                        Is Loss Deal*
+                      </Label>
+                      <SearchableSelect
+                        options={options.isLossDeal}
+                        value={formData.isLossDeal}
+                        onChange={(value) => handleChange("isLossDeal", value)}
+                        placeholder="Select option"
+                      />
+                      {errors.isLossDeal && (
+                        <p className="text-sm text-red-500">
+                          {errors.isLossDeal}
+                        </p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
 
             <div className="mt-8 flex justify-end space-x-4">

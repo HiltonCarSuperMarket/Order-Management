@@ -22,7 +22,7 @@ const OrderSchema = new Schema({
     required: true,
   },
   closingDate: {
-    type: Date,
+    type: String, // Changed from Date to String to match sample object
     required: true,
   },
   closingTime: {
@@ -51,25 +51,27 @@ const OrderSchema = new Schema({
   },
   isShowUp: {
     type: String,
+    default: null,
   },
   isDeal: {
     type: String,
-  },
-  cancellationDate: {
-    type: Date,
     default: null,
   },
   reasonForAction: {
     type: String,
+    default: null,
   },
   reasonDetail: {
     type: String,
+    default: null,
   },
   isLossDeal: {
     type: String,
+    default: null,
   },
   customer: {
     type: String,
+    default: "Not Available",
   },
 });
 
