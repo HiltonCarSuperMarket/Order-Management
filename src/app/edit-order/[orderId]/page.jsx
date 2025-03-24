@@ -16,13 +16,6 @@ import {
 } from "@/components/ui/popover";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import {
   Command,
   CommandEmpty,
   CommandGroup,
@@ -30,12 +23,12 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { CalendarIcon, Clock, Loader2, X } from "lucide-react";
+import { CalendarIcon, Clock, Loader2 } from "lucide-react";
 import Navbar from "@/components/shared/navbar";
 import { toast } from "sonner";
 
 // Searchable select component
-function SearchableSelect({ options, value, onChange, placeholder }) {
+function SearchableSelect({ options, value, onChange, placeholder, disabled }) {
   const [open, setOpen] = useState(false);
 
   // Add a default empty array if options is undefined
@@ -49,6 +42,7 @@ function SearchableSelect({ options, value, onChange, placeholder }) {
           role="combobox"
           aria-expanded={open}
           className="w-full justify-between dark:bg-gray-700 dark:text-white dark:border-gray-600"
+          disabled={disabled}
         >
           {value ? value : placeholder}
         </Button>
@@ -166,8 +160,7 @@ export default function EditOrderPage() {
   });
 
   const [errors, setErrors] = useState({});
-  const [errorModalOpen, setErrorModalOpen] = useState(false);
-  const [firstError, setFirstError] = useState({ field: "", message: "" });
+  // Error modal state removed in favor of toast notifications
 
   // Initialize options state with default empty objects for each field
   const [options, setOptions] = useState({
@@ -248,6 +241,96 @@ export default function EditOrderPage() {
       setErrors({
         ...errors,
         [field]: null,
+      });
+    }
+  };
+
+  // Handle changes for isShowUp field with validation rules
+  const handleShowUpChange = (value) => {
+    const updatedFormData = { ...formData, isShowUp: value };
+
+    // Rule 1: if isShowUp = 'No' then automatically fill isDeal = 'No' and make it disable
+    if (value === "No") {
+      updatedFormData.isDeal = "No";
+    }
+
+    setFormData(updatedFormData);
+
+    // Clear error when field is updated
+    if (errors.isShowUp) {
+      setErrors({
+        ...errors,
+        isShowUp: null,
+      });
+    }
+  };
+
+  // Handle changes for isDeal field with validation rules
+  const handleIsDealChange = (value) => {
+    const updatedFormData = { ...formData, isDeal: value };
+
+    // Rule 2: if isDeal = 'Yes' then automatically fill reasonForAction = 'Sold' and isLossDeal = 'No'
+    if (value === "Yes") {
+      updatedFormData.reasonForAction = "Sold";
+      updatedFormData.isLossDeal = "No";
+    } else if (value === "No") {
+      // If changing from Yes to No, reset reasonForAction if it was "Sold"
+      if (formData.reasonForAction === "Sold") {
+        updatedFormData.reasonForAction = null;
+      }
+    }
+
+    setFormData(updatedFormData);
+
+    // Clear error when field is updated
+    if (errors.isDeal) {
+      setErrors({
+        ...errors,
+        isDeal: null,
+      });
+    }
+  };
+
+  // Handle changes for reasonForAction field with validation rules
+  const handleReasonForActionChange = (value) => {
+    // Rule 3: if isDeal = 'No' then reasonForAction can never be "Sold"
+    if (formData.isDeal === "No" && value === "Sold") {
+      toast.error("Reason for action cannot be 'Sold' when Deal is 'No'");
+      return;
+    }
+
+    setFormData({
+      ...formData,
+      reasonForAction: value,
+    });
+
+    // Clear error when field is updated
+    if (errors.reasonForAction) {
+      setErrors({
+        ...errors,
+        reasonForAction: null,
+      });
+    }
+  };
+
+  // Handle changes for isLossDeal field with validation rules
+  const handleLossDealChange = (value) => {
+    // Rule 5: if isDeal = No, then isLossDeal can either Yes or No but not Sold
+    if (formData.isDeal === "No" && value === "Sold") {
+      toast.error("Loss Deal cannot be 'Sold' when Deal is 'No'");
+      return;
+    }
+
+    setFormData({
+      ...formData,
+      isLossDeal: value,
+    });
+
+    // Clear error when field is updated
+    if (errors.isLossDeal) {
+      setErrors({
+        ...errors,
+        isLossDeal: null,
       });
     }
   };
@@ -430,13 +513,9 @@ export default function EditOrderPage() {
 
     setErrors(newErrors);
 
-    // Set first error for modal
+    // Show first error as toast notification
     if (firstErrorField) {
-      setFirstError({
-        field: firstErrorField,
-        message: firstErrorMessage,
-      });
-      setErrorModalOpen(true);
+      toast.error(firstErrorMessage);
       return false;
     }
 
@@ -888,7 +967,7 @@ export default function EditOrderPage() {
                         <SearchableSelect
                           options={options.isShowUp}
                           value={formData.isShowUp}
-                          onChange={(value) => handleChange("isShowUp", value)}
+                          onChange={(value) => handleShowUpChange(value)}
                           placeholder="Select option"
                         />
                         {errors.isShowUp && (
@@ -905,8 +984,9 @@ export default function EditOrderPage() {
                         <SearchableSelect
                           options={options.isDeal}
                           value={formData.isDeal}
-                          onChange={(value) => handleChange("isDeal", value)}
+                          onChange={(value) => handleIsDealChange(value)}
                           placeholder="Select option"
+                          disabled={formData.isShowUp === "No"}
                         />
                         {errors.isDeal && (
                           <p className="text-sm text-red-500">
@@ -938,10 +1018,9 @@ export default function EditOrderPage() {
                       <SearchableSelect
                         options={options.reasonForAction}
                         value={formData.reasonForAction}
-                        onChange={(value) =>
-                          handleChange("reasonForAction", value)
-                        }
+                        onChange={(value) => handleReasonForActionChange(value)}
                         placeholder="Select reason"
+                        disabled={formData.isDeal === "Yes"}
                       />
                       {errors.reasonForAction && (
                         <p className="text-sm text-red-500">
@@ -983,8 +1062,9 @@ export default function EditOrderPage() {
                       <SearchableSelect
                         options={options.isLossDeal}
                         value={formData.isLossDeal}
-                        onChange={(value) => handleChange("isLossDeal", value)}
+                        onChange={(value) => handleLossDealChange(value)}
                         placeholder="Select option"
+                        disabled={formData.isDeal === "Yes"}
                       />
                       {errors.isLossDeal && (
                         <p className="text-sm text-red-500">
@@ -1019,34 +1099,6 @@ export default function EditOrderPage() {
               </Button>
             </div>
           </form>
-
-          {/* Error Modal */}
-          <Dialog open={errorModalOpen} onOpenChange={setErrorModalOpen}>
-            <DialogContent className="sm:max-w-md dark:bg-gray-800">
-              <DialogHeader>
-                <DialogTitle className="flex items-center text-red-500 dark:text-red-400">
-                  <span>Validation Error</span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setErrorModalOpen(false)}
-                    className="ml-auto h-8 w-8 p-0"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </DialogTitle>
-              </DialogHeader>
-              <div className="py-4 dark:text-white">{firstError.message}</div>
-              <DialogFooter>
-                <Button
-                  onClick={() => setErrorModalOpen(false)}
-                  className="w-full dark:bg-primary dark:hover:bg-primary/90"
-                >
-                  OK
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
         </div>
       </div>
     </div>
