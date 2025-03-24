@@ -504,18 +504,18 @@ export default function OrdersDashboard() {
           variants={itemVariants}
           className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
         >
-          {/* Total Records Card */}
+          {/* Total Orders Card */}
           <Card className="border border-[#2C45AA]/20 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
             <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
               <CardTitle className="text-sm font-medium">
-                Total Records
+                Total Orders
               </CardTitle>
               <BarChart3 className="w-4 h-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{totalOrders}</div>
               <p className="text-xs text-muted-foreground mt-1">
-                Total filtered records
+                Total filtered orders
               </p>
             </CardContent>
           </Card>

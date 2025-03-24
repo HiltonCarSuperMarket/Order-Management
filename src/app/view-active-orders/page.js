@@ -439,72 +439,18 @@ export default function ActiveOrdersDashboard() {
           variants={itemVariants}
           className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
         >
-          {/* Total Records Card */}
+          {/* Total Orders Card */}
           <Card className="border border-[#2C45AA]/20 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
             <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
               <CardTitle className="text-sm font-medium">
-                Total Records
+                Total Orders
               </CardTitle>
               <BarChart3 className="w-4 h-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{totalOrders}</div>
               <p className="text-xs text-muted-foreground mt-1">
-                Total filtered records
-              </p>
-            </CardContent>
-          </Card>
-
-          {/* Sold Orders Card */}
-          <Card className="border border-[#2C45AA]/20 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-              <CardTitle className="text-sm font-medium">Sold Orders</CardTitle>
-              <CheckCircle className="w-4 h-4 text-green-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{orderStats.soldOrders}</div>
-              <div className="flex items-center mt-1">
-                <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                  <div
-                    className="bg-green-500 h-2.5 rounded-full"
-                    style={{ width: `${orderStats.soldPercentage}%` }}
-                  ></div>
-                </div>
-                <span className="text-xs text-muted-foreground ml-2">
-                  {orderStats.soldPercentage}%
-                </span>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Sold Vehicle Orders
-              </p>
-            </CardContent>
-          </Card>
-
-          {/* Cancelled Orders Card */}
-          <Card className="border border-[#2C45AA]/20 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-              <CardTitle className="text-sm font-medium">
-                Cancelled Orders
-              </CardTitle>
-              <XCircle className="w-4 h-4 text-red-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {orderStats.cancelledOrders}
-              </div>
-              <div className="flex items-center mt-1">
-                <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                  <div
-                    className="bg-red-500 h-2.5 rounded-full"
-                    style={{ width: `${orderStats.cancelledPercentage}%` }}
-                  ></div>
-                </div>
-                <span className="text-xs text-muted-foreground ml-2">
-                  {orderStats.cancelledPercentage}%
-                </span>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Cancelled Vehicle Orders
+                Total filtered orders
               </p>
             </CardContent>
           </Card>
