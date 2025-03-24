@@ -6,7 +6,6 @@ import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import axios from "axios";
 import {
   Popover,
@@ -119,13 +118,12 @@ export default function OrderRegistrationPage() {
     location: "",
     isPctSheetReceivedWithinTime: "",
     pctStatus: "",
-    orderStatus: "",
-    isShowUp: "",
-    isDeal: "",
-    cancellationDate: getCurrentUKDateTime().date,
-    reasonForAction: "",
-    reasonDetail: "",
-    isLossDeal: "",
+    orderStatus: "Active", // Default to Active
+    isShowUp: null,
+    isDeal: null,
+    reasonForAction: null,
+    reasonDetail: null,
+    isLossDeal: null,
   });
 
   const [errors, setErrors] = useState({});
@@ -253,8 +251,8 @@ export default function OrderRegistrationPage() {
       { field: "entryTime", label: "Entry time" },
       { field: "enquiryType", label: "Enquiry type" },
       { field: "openingDate", label: "Order date" },
-      { field: "closingDate", label: "Collection date" },
-      { field: "closingTime", label: "Collection time" },
+      { field: "closingDate", label: "Closing date" },
+      { field: "closingTime", label: "Closing time" },
       { field: "salesExecutive", label: "Sales executive" },
       { field: "location", label: "Location" },
       {
@@ -262,12 +260,6 @@ export default function OrderRegistrationPage() {
         label: "PCT sheet received status",
       },
       { field: "pctStatus", label: "PCT status" },
-      { field: "orderStatus", label: "Order status" },
-      { field: "isShowUp", label: "Show up status" },
-      { field: "isDeal", label: "Deal status" },
-      { field: "cancellationDate", label: "Cancellation date" },
-      { field: "reasonForAction", label: "Reason for action" },
-      { field: "isLossDeal", label: "Loss deal status" },
     ];
 
     requiredFields.forEach(({ field, label }) => {
@@ -300,30 +292,10 @@ export default function OrderRegistrationPage() {
 
       if (closingDateStr < openingDateStr) {
         newErrors.closingDate =
-          "Collection date cannot be earlier than order date";
+          "Closing date cannot be earlier than order date";
         if (!firstErrorField) {
           firstErrorField = "closingDate";
-          firstErrorMessage =
-            "Collection date cannot be earlier than order date";
-        }
-      }
-    }
-
-    // Validate cancellation date is not earlier than order date
-    if (formData.cancellationDate && formData.openingDate) {
-      const cancellationDateStr = format(
-        formData.cancellationDate,
-        "yyyy-MM-dd"
-      );
-      const openingDateStr = format(formData.openingDate, "yyyy-MM-dd");
-
-      if (cancellationDateStr < openingDateStr) {
-        newErrors.cancellationDate =
-          "Cancellation date cannot be earlier than order date";
-        if (!firstErrorField) {
-          firstErrorField = "cancellationDate";
-          firstErrorMessage =
-            "Cancellation date cannot be earlier than order date";
+          firstErrorMessage = "Closing date cannot be earlier than order date";
         }
       }
     }
@@ -344,23 +316,19 @@ export default function OrderRegistrationPage() {
     e.preventDefault();
 
     if (validateForm()) {
-      // If reasonDetail is empty, set it to "Not Given"
-      const finalFormData = {
-        ...formData,
-        reasonDetail: formData.reasonDetail || "Not Given",
-      };
-
       // Format dates for MongoDB storage
       const formattedData = {
-        ...finalFormData,
-        entryDate: new Date(finalFormData.entryDate),
-        openingDate: new Date(finalFormData.openingDate),
-        closingDate: new Date(finalFormData.closingDate),
-        cancellationDate: new Date(finalFormData.cancellationDate),
+        ...formData,
+        entryDate: new Date(formData.entryDate),
+        openingDate: new Date(formData.openingDate),
+        closingDate: new Date(formData.closingDate),
       };
 
       try {
-        const response = await axios.post("/api/orders", formattedData);
+        const response = await axios.post(
+          "/api/orders/register",
+          formattedData
+        );
 
         // Show success toast
         toast.success("Order registered successfully!");
@@ -379,13 +347,12 @@ export default function OrderRegistrationPage() {
           location: "",
           isPctSheetReceivedWithinTime: "",
           pctStatus: "",
-          orderStatus: "",
-          isShowUp: "",
-          isDeal: "",
-          cancellationDate: getCurrentUKDateTime().date,
-          reasonForAction: "",
-          reasonDetail: "",
-          isLossDeal: "",
+          orderStatus: "Active", // Default to Active
+          isShowUp: null,
+          isDeal: null,
+          reasonForAction: null,
+          reasonDetail: null,
+          isLossDeal: null,
         });
 
         console.log("Form submitted:", formattedData);
@@ -546,7 +513,7 @@ export default function OrderRegistrationPage() {
 
                   <div className="space-y-2">
                     <Label htmlFor="closingDate" className="dark:text-gray-300">
-                      Collection Date*
+                      Closing Date*
                     </Label>
                     <Popover>
                       <PopoverTrigger asChild>
@@ -575,7 +542,7 @@ export default function OrderRegistrationPage() {
 
                   <div className="space-y-2">
                     <Label htmlFor="closingTime" className="dark:text-gray-300">
-                      Collection Time*
+                      Closing Time*
                     </Label>
                     <div className="flex items-center">
                       <Input
@@ -696,124 +663,11 @@ export default function OrderRegistrationPage() {
                     <Label htmlFor="orderStatus" className="dark:text-gray-300">
                       Order Status*
                     </Label>
-                    <SearchableSelect
-                      options={options.orderStatus}
-                      value={formData.orderStatus}
-                      onChange={(value) => handleChange("orderStatus", value)}
-                      placeholder="Select order status"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="isShowUp" className="dark:text-gray-300">
-                      Show Up*
-                    </Label>
-                    <SearchableSelect
-                      options={options.isShowUp}
-                      value={formData.isShowUp}
-                      onChange={(value) => handleChange("isShowUp", value)}
-                      placeholder="Select option"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="isDeal" className="dark:text-gray-300">
-                      Is Deal*
-                    </Label>
-                    <SearchableSelect
-                      options={options.isDeal}
-                      value={formData.isDeal}
-                      onChange={(value) => handleChange("isDeal", value)}
-                      placeholder="Select option"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Cancellation Details */}
-              <Card className="dark:bg-gray-800">
-                <CardHeader>
-                  <CardTitle className="text-lg dark:text-white">
-                    Cancellation Details
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="cancellationDate"
-                      className="dark:text-gray-300"
-                    >
-                      Cancellation Date*
-                    </Label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className="w-full justify-start text-left font-normal dark:bg-gray-700 dark:text-white dark:border-gray-600"
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {formData.cancellationDate
-                            ? format(formData.cancellationDate, "dd/MM/yyyy")
-                            : "Select date"}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 dark:bg-gray-800">
-                        <Calendar
-                          mode="single"
-                          selected={formData.cancellationDate}
-                          onSelect={(date) =>
-                            handleDateChange("cancellationDate", date)
-                          }
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="reasonForAction"
-                      className="dark:text-gray-300"
-                    >
-                      Reason For Action*
-                    </Label>
-                    <SearchableSelect
-                      options={options.reasonForAction}
-                      value={formData.reasonForAction}
-                      onChange={(value) =>
-                        handleChange("reasonForAction", value)
-                      }
-                      placeholder="Select reason"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="reasonDetail"
-                      className="dark:text-gray-300"
-                    >
-                      Reason Detail
-                    </Label>
-                    <Textarea
-                      id="reasonDetail"
-                      value={formData.reasonDetail}
-                      onChange={(e) =>
-                        handleChange("reasonDetail", e.target.value)
-                      }
-                      placeholder="Enter reason details or leave empty for 'Not Given'"
-                      className="min-h-[80px] dark:bg-gray-700 dark:text-white dark:border-gray-600"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="isLossDeal" className="dark:text-gray-300">
-                      Is Loss Deal*
-                    </Label>
-                    <SearchableSelect
-                      options={options.isLossDeal}
-                      value={formData.isLossDeal}
-                      onChange={(value) => handleChange("isLossDeal", value)}
-                      placeholder="Select option"
+                    <Input
+                      id="orderStatus"
+                      value="Active"
+                      disabled
+                      className="dark:bg-gray-700 dark:text-white dark:border-gray-600"
                     />
                   </div>
                 </CardContent>

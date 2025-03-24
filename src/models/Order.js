@@ -51,11 +51,9 @@ const OrderSchema = new Schema({
   },
   isShowUp: {
     type: String,
-    required: true,
   },
   isDeal: {
     type: String,
-    required: true,
   },
   cancellationDate: {
     type: Date,
@@ -69,7 +67,6 @@ const OrderSchema = new Schema({
   },
   isLossDeal: {
     type: String,
-    required: true,
   },
   customer: {
     type: String,
