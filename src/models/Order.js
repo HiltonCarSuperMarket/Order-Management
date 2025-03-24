@@ -13,19 +13,19 @@ const OrderSchema = new Schema({
     type: String,
     required: true,
   },
-  registeration: {
+  registration: {
     type: String,
     required: true,
   },
-  orderDate: {
+  openingDate: {
     type: Date,
     required: true,
   },
-  collectionDate: {
+  closingDate: {
     type: Date,
     required: true,
   },
-  collectionTime: {
+  closingTime: {
     type: String,
     required: true,
   },

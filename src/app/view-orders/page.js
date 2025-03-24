@@ -37,11 +37,12 @@ import {
   Trash2,
   X,
   Edit,
+  BarChart3,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 import Navbar from "@/components/shared/navbar";
-import { toast } from "sonner";
 import DeleteOrderDialog from "@/components/shared/delete-order-dialog";
-import OrderHighlightCards from "@/components/shared/order-highlight-card";
 
 // And add this state and useEffect instead:
 const initialFilterOptions = {
@@ -84,6 +85,8 @@ export default function OrdersDashboard() {
   const [orderToDelete, setOrderToDelete] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [totalSoldOrders, setTotalSoldOrders] = useState(0);
+  const [totalCancelledOrders, setTotalCancelledOrders] = useState(0);
 
   console.log("ORDERS", orders);
 
@@ -343,7 +346,7 @@ export default function OrdersDashboard() {
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      let url = `/api/orders?page=${currentPage}&limit=${limit}`;
+      let url = `/api/orders/inactive?page=${currentPage}&limit=${limit}`;
 
       if (search) {
         url += `&search=${encodeURIComponent(search)}`;
@@ -374,6 +377,9 @@ export default function OrdersDashboard() {
       if (data.success) {
         setOrders(data.data);
         setTotalOrders(data.totalOrders);
+        // Store the total counts for sold and cancelled orders
+        setTotalSoldOrders(data.totalSoldOrders || 0);
+        setTotalCancelledOrders(data.totalCancelledOrders || 0);
         controls.start("visible");
       } else {
         console.error("Error fetching orders:", data.error);
@@ -398,15 +404,39 @@ export default function OrdersDashboard() {
     router.push(`/edit-order/${orderId}`);
   };
 
+  // Calculate order statistics for the cards
+  const calculateOrderStats = () => {
+    // Use the total counts from the API instead of counting from the current page
+    const soldOrders = totalSoldOrders;
+    const cancelledOrders = totalCancelledOrders;
+
+    // Calculate percentages
+    const soldPercentage =
+      totalOrders > 0 ? Math.round((soldOrders / totalOrders) * 100) : 0;
+
+    const cancelledPercentage =
+      totalOrders > 0 ? Math.round((cancelledOrders / totalOrders) * 100) : 0;
+
+    return {
+      soldOrders,
+      cancelledOrders,
+      soldPercentage,
+      cancelledPercentage,
+    };
+  };
+
+  // Get the statistics
+  const orderStats = calculateOrderStats();
+
   // Table columns configuration
   const columns = [
     { key: "entryDate", label: "Entry Date", format: formatDate },
     { key: "entryTime", label: "Entry Time" },
-    { key: "registeration", label: "Registration" },
+    { key: "registration", label: "Registration" },
     { key: "enquiryType", label: "Enquiry Type", filterable: true },
-    { key: "orderDate", label: "Order Date", format: formatDate },
-    { key: "collectionDate", label: "Collection Date", format: formatDate },
-    { key: "collectionTime", label: "Collection Time" },
+    { key: "openingDate", label: "Order Date", format: formatDate },
+    { key: "closingDate", label: "Collection Date", format: formatDate },
+    { key: "closingTime", label: "Collection Time" },
     { key: "salesExecutive", label: "Sales Executive", filterable: true },
     { key: "customer", label: "Customer" },
     { key: "location", label: "Location", filterable: true },
@@ -437,7 +467,6 @@ export default function OrdersDashboard() {
       badge: true,
       badgeVariant: getBadgeVariantForDeal,
     },
-    { key: "cancellationDate", label: "Cancellation Date", format: formatDate },
     { key: "reasonForAction", label: "Reason", filterable: true },
     { key: "reasonDetail", label: "Detail" },
     {
@@ -465,12 +494,87 @@ export default function OrdersDashboard() {
         animate="visible"
         variants={containerVariants}
       >
-        <h2 className="text-center text-4xl font-bold   pt-10  sm:pt-2 ">
+        <h2 className="text-center text-4xl font-bold pt-10 sm:pt-2">
           {" "}
           Orders Dashboard
         </h2>
 
-        <OrderHighlightCards />
+        {/* Order Highlight Cards */}
+        <motion.div
+          variants={itemVariants}
+          className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+        >
+          {/* Total Records Card */}
+          <Card className="border border-[#2C45AA]/20 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+              <CardTitle className="text-sm font-medium">
+                Total Records
+              </CardTitle>
+              <BarChart3 className="w-4 h-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{totalOrders}</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Total filtered records
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Sold Orders Card */}
+          <Card className="border border-[#2C45AA]/20 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+              <CardTitle className="text-sm font-medium">Sold Orders</CardTitle>
+              <CheckCircle className="w-4 h-4 text-green-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{orderStats.soldOrders}</div>
+              <div className="flex items-center mt-1">
+                <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                  <div
+                    className="bg-green-500 h-2.5 rounded-full"
+                    style={{ width: `${orderStats.soldPercentage}%` }}
+                  ></div>
+                </div>
+                <span className="text-xs text-muted-foreground ml-2">
+                  {orderStats.soldPercentage}%
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Sold Vehicle Orders
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Cancelled Orders Card */}
+          <Card className="border border-[#2C45AA]/20 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+              <CardTitle className="text-sm font-medium">
+                Cancelled Orders
+              </CardTitle>
+              <XCircle className="w-4 h-4 text-red-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {orderStats.cancelledOrders}
+              </div>
+              <div className="flex items-center mt-1">
+                <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                  <div
+                    className="bg-red-500 h-2.5 rounded-full"
+                    style={{ width: `${orderStats.cancelledPercentage}%` }}
+                  ></div>
+                </div>
+                <span className="text-xs text-muted-foreground ml-2">
+                  {orderStats.cancelledPercentage}%
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Cancelled Vehicle Orders
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
         <motion.div variants={itemVariants}>
           <Card className="border border-[#2C45AA]/20  bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
             <CardHeader className="pb-3">

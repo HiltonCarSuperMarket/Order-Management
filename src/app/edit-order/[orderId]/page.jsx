@@ -147,11 +147,11 @@ export default function EditOrderPage() {
   const [formData, setFormData] = useState({
     entryDate: getCurrentUKDateTime().date,
     entryTime: getCurrentUKDateTime().time,
-    registeration: "",
+    registration: "",
     enquiryType: "",
-    orderDate: getCurrentUKDateTime().date,
-    collectionDate: getCurrentUKDateTime().date,
-    collectionTime: getCurrentUKDateTime().time,
+    openingDate: getCurrentUKDateTime().date,
+    closingDate: getCurrentUKDateTime().date,
+    closingTime: getCurrentUKDateTime().time,
     salesExecutive: "",
     customer: "",
     location: "",
@@ -204,8 +204,8 @@ export default function EditOrderPage() {
           const parsedData = {
             ...orderData,
             entryDate: parseDate(orderData.entryDate),
-            orderDate: parseDate(orderData.orderDate),
-            collectionDate: parseDate(orderData.collectionDate),
+            openingDate: parseDate(orderData.openingDate),
+            closingDate: parseDate(orderData.closingDate),
             cancellationDate: parseDate(orderData.cancellationDate),
           };
 
@@ -266,19 +266,19 @@ export default function EditOrderPage() {
     let firstErrorMessage = "";
 
     // Registration validation - uppercase, no spaces or special chars
-    if (!formData.registeration) {
-      newErrors.registeration = "Registration is required";
+    if (!formData.registration) {
+      newErrors.registration = "Registration is required";
       if (!firstErrorField) {
-        firstErrorField = "registeration";
+        firstErrorField = "registration";
         firstErrorMessage = "Registration is required";
       }
     } else {
-      const registerationRegex = /^[A-Z0-9]+$/;
-      if (!registerationRegex.test(formData.registeration)) {
-        newErrors.registeration =
+      const registrationRegex = /^[A-Z0-9]+$/;
+      if (!registrationRegex.test(formData.registration)) {
+        newErrors.registration =
           "Registration must contain only uppercase letters and numbers, no spaces or special characters";
         if (!firstErrorField) {
-          firstErrorField = "registeration";
+          firstErrorField = "registration";
           firstErrorMessage =
             "Registration must contain only uppercase letters and numbers, no spaces or special characters";
         }
@@ -305,9 +305,9 @@ export default function EditOrderPage() {
       { field: "entryDate", label: "Entry date" },
       { field: "entryTime", label: "Entry time" },
       { field: "enquiryType", label: "Enquiry type" },
-      { field: "orderDate", label: "Order date" },
-      { field: "collectionDate", label: "Collection date" },
-      { field: "collectionTime", label: "Collection time" },
+      { field: "openingDate", label: "Order date" },
+      { field: "closingDate", label: "Collection date" },
+      { field: "closingTime", label: "Collection time" },
       { field: "salesExecutive", label: "Sales executive" },
       { field: "location", label: "Location" },
       {
@@ -333,28 +333,28 @@ export default function EditOrderPage() {
     });
 
     // Date validations
-    if (formData.orderDate && formData.entryDate) {
-      const orderDateStr = format(formData.orderDate, "yyyy-MM-dd");
+    if (formData.openingDate && formData.entryDate) {
+      const openingDateStr = format(formData.openingDate, "yyyy-MM-dd");
       const entryDateStr = format(formData.entryDate, "yyyy-MM-dd");
 
-      if (orderDateStr > entryDateStr) {
-        newErrors.orderDate = "Order date cannot be later than entry date";
+      if (openingDateStr > entryDateStr) {
+        newErrors.openingDate = "Order date cannot be later than entry date";
         if (!firstErrorField) {
-          firstErrorField = "orderDate";
+          firstErrorField = "openingDate";
           firstErrorMessage = "Order date cannot be later than entry date";
         }
       }
     }
 
-    if (formData.collectionDate && formData.orderDate) {
-      const collectionDateStr = format(formData.collectionDate, "yyyy-MM-dd");
-      const orderDateStr = format(formData.orderDate, "yyyy-MM-dd");
+    if (formData.closingDate && formData.openingDate) {
+      const closingDateStr = format(formData.closingDate, "yyyy-MM-dd");
+      const openingDateStr = format(formData.openingDate, "yyyy-MM-dd");
 
-      if (collectionDateStr < orderDateStr) {
-        newErrors.collectionDate =
+      if (closingDateStr < openingDateStr) {
+        newErrors.closingDate =
           "Collection date cannot be earlier than order date";
         if (!firstErrorField) {
-          firstErrorField = "collectionDate";
+          firstErrorField = "closingDate";
           firstErrorMessage =
             "Collection date cannot be earlier than order date";
         }
@@ -362,14 +362,14 @@ export default function EditOrderPage() {
     }
 
     // Validate cancellation date is not earlier than order date
-    if (formData.cancellationDate && formData.orderDate) {
+    if (formData.cancellationDate && formData.openingDate) {
       const cancellationDateStr = format(
         formData.cancellationDate,
         "yyyy-MM-dd"
       );
-      const orderDateStr = format(formData.orderDate, "yyyy-MM-dd");
+      const openingDateStr = format(formData.openingDate, "yyyy-MM-dd");
 
-      if (cancellationDateStr < orderDateStr) {
+      if (cancellationDateStr < openingDateStr) {
         newErrors.cancellationDate =
           "Cancellation date cannot be earlier than order date";
         if (!firstErrorField) {
@@ -420,8 +420,8 @@ export default function EditOrderPage() {
         const formattedData = {
           ...finalFormData,
           entryDate: formatDateForMongoDB(finalFormData.entryDate),
-          orderDate: formatDateForMongoDB(finalFormData.orderDate),
-          collectionDate: formatDateForMongoDB(finalFormData.collectionDate),
+          openingDate: formatDateForMongoDB(finalFormData.openingDate),
+          closingDate: formatDateForMongoDB(finalFormData.closingDate),
           cancellationDate: formatDateForMongoDB(
             finalFormData.cancellationDate
           ),
@@ -527,17 +527,17 @@ export default function EditOrderPage() {
 
                   <div className="space-y-2">
                     <Label
-                      htmlFor="registeration"
+                      htmlFor="registration"
                       className="dark:text-gray-300"
                     >
                       Registration*
                     </Label>
                     <Input
-                      id="registeration"
-                      value={formData.registeration}
+                      id="registration"
+                      value={formData.registration}
                       onChange={(e) =>
                         handleChange(
-                          "registeration",
+                          "registration",
                           e.target.value.toUpperCase()
                         )
                       }
@@ -569,7 +569,7 @@ export default function EditOrderPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="orderDate" className="dark:text-gray-300">
+                    <Label htmlFor="openingDate" className="dark:text-gray-300">
                       Order Date*
                     </Label>
                     <Popover>
@@ -579,17 +579,17 @@ export default function EditOrderPage() {
                           className="w-full justify-start text-left font-normal dark:bg-gray-700 dark:text-white dark:border-gray-600"
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
-                          {formData.orderDate
-                            ? format(formData.orderDate, "dd/MM/yyyy")
+                          {formData.openingDate
+                            ? format(formData.openingDate, "dd/MM/yyyy")
                             : "Select date"}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0 dark:bg-gray-800">
                         <Calendar
                           mode="single"
-                          selected={formData.orderDate}
+                          selected={formData.openingDate}
                           onSelect={(date) =>
-                            handleDateChange("orderDate", date)
+                            handleDateChange("openingDate", date)
                           }
                           initialFocus
                         />
@@ -598,10 +598,7 @@ export default function EditOrderPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label
-                      htmlFor="collectionDate"
-                      className="dark:text-gray-300"
-                    >
+                    <Label htmlFor="closingDate" className="dark:text-gray-300">
                       Collection Date*
                     </Label>
                     <Popover>
@@ -611,17 +608,17 @@ export default function EditOrderPage() {
                           className="w-full justify-start text-left font-normal dark:bg-gray-700 dark:text-white dark:border-gray-600"
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
-                          {formData.collectionDate
-                            ? format(formData.collectionDate, "dd/MM/yyyy")
+                          {formData.closingDate
+                            ? format(formData.closingDate, "dd/MM/yyyy")
                             : "Select date"}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0 dark:bg-gray-800">
                         <Calendar
                           mode="single"
-                          selected={formData.collectionDate}
+                          selected={formData.closingDate}
                           onSelect={(date) =>
-                            handleDateChange("collectionDate", date)
+                            handleDateChange("closingDate", date)
                           }
                           initialFocus
                         />
@@ -630,19 +627,16 @@ export default function EditOrderPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label
-                      htmlFor="collectionTime"
-                      className="dark:text-gray-300"
-                    >
+                    <Label htmlFor="closingTime" className="dark:text-gray-300">
                       Collection Time*
                     </Label>
                     <div className="flex items-center">
                       <Input
-                        id="collectionTime"
+                        id="closingTime"
                         type="time"
-                        value={formData.collectionTime}
+                        value={formData.closingTime}
                         onChange={(e) =>
-                          handleChange("collectionTime", e.target.value)
+                          handleChange("closingTime", e.target.value)
                         }
                         className="dark:bg-gray-700 dark:text-white dark:border-gray-600"
                       />
