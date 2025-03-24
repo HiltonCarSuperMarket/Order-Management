@@ -252,6 +252,12 @@ export default function EditOrderPage() {
     // Rule 1: if isShowUp = 'No' then automatically fill isDeal = 'No' and make it disable
     if (value === "No") {
       updatedFormData.isDeal = "No";
+
+      // If isDeal is changing to 'No', we need to update dependent fields
+      if (formData.isDeal === "Yes") {
+        updatedFormData.reasonForAction = null;
+        updatedFormData.isLossDeal = null;
+      }
     }
 
     setFormData(updatedFormData);
@@ -267,6 +273,12 @@ export default function EditOrderPage() {
 
   // Handle changes for isDeal field with validation rules
   const handleIsDealChange = (value) => {
+    // Don't allow changing isDeal if isShowUp is 'No'
+    if (formData.isShowUp === "No" && value !== "No") {
+      toast.error("Deal must be 'No' when Show Up is 'No'");
+      return;
+    }
+
     const updatedFormData = { ...formData, isDeal: value };
 
     // Rule 2: if isDeal = 'Yes' then automatically fill reasonForAction = 'Sold' and isLossDeal = 'No'
@@ -277,6 +289,10 @@ export default function EditOrderPage() {
       // If changing from Yes to No, reset reasonForAction if it was "Sold"
       if (formData.reasonForAction === "Sold") {
         updatedFormData.reasonForAction = null;
+      }
+      // Reset isLossDeal if it was set by the Yes condition
+      if (formData.isLossDeal === "No" && formData.isDeal === "Yes") {
+        updatedFormData.isLossDeal = null;
       }
     }
 
@@ -299,6 +315,12 @@ export default function EditOrderPage() {
       return;
     }
 
+    // If isDeal is 'Yes', reasonForAction must be 'Sold'
+    if (formData.isDeal === "Yes" && value !== "Sold") {
+      toast.error("Reason for action must be 'Sold' when Deal is 'Yes'");
+      return;
+    }
+
     setFormData({
       ...formData,
       reasonForAction: value,
@@ -318,6 +340,12 @@ export default function EditOrderPage() {
     // Rule 5: if isDeal = No, then isLossDeal can either Yes or No but not Sold
     if (formData.isDeal === "No" && value === "Sold") {
       toast.error("Loss Deal cannot be 'Sold' when Deal is 'No'");
+      return;
+    }
+
+    // If isDeal is 'Yes', isLossDeal must be 'No'
+    if (formData.isDeal === "Yes" && value !== "No") {
+      toast.error("Loss Deal must be 'No' when Deal is 'Yes'");
       return;
     }
 
@@ -507,6 +535,58 @@ export default function EditOrderPage() {
           firstErrorField = "pctStatus";
           firstErrorMessage =
             "PCT status cannot be 'Waiting' for inactive orders";
+        }
+      }
+
+      // Additional validation rules for Inactive Orders
+
+      // Rule 1: If isShowUp = 'No', isDeal must be 'No'
+      if (formData.isShowUp === "No" && formData.isDeal !== "No") {
+        newErrors.isDeal = "Deal must be 'No' when Show Up is 'No'";
+        if (!firstErrorField) {
+          firstErrorField = "isDeal";
+          firstErrorMessage = "Deal must be 'No' when Show Up is 'No'";
+        }
+      }
+
+      // Rule 2: If isDeal = 'Yes', reasonForAction must be 'Sold' and isLossDeal must be 'No'
+      if (formData.isDeal === "Yes") {
+        if (formData.reasonForAction !== "Sold") {
+          newErrors.reasonForAction =
+            "Reason for action must be 'Sold' when Deal is 'Yes'";
+          if (!firstErrorField) {
+            firstErrorField = "reasonForAction";
+            firstErrorMessage =
+              "Reason for action must be 'Sold' when Deal is 'Yes'";
+          }
+        }
+
+        if (formData.isLossDeal !== "No") {
+          newErrors.isLossDeal = "Loss Deal must be 'No' when Deal is 'Yes'";
+          if (!firstErrorField) {
+            firstErrorField = "isLossDeal";
+            firstErrorMessage = "Loss Deal must be 'No' when Deal is 'Yes'";
+          }
+        }
+      }
+
+      // Rule 3: If isDeal = 'No', reasonForAction cannot be 'Sold'
+      if (formData.isDeal === "No" && formData.reasonForAction === "Sold") {
+        newErrors.reasonForAction =
+          "Reason for action cannot be 'Sold' when Deal is 'No'";
+        if (!firstErrorField) {
+          firstErrorField = "reasonForAction";
+          firstErrorMessage =
+            "Reason for action cannot be 'Sold' when Deal is 'No'";
+        }
+      }
+
+      // Rule 5: If isDeal = 'No', isLossDeal cannot be 'Sold'
+      if (formData.isDeal === "No" && formData.isLossDeal === "Sold") {
+        newErrors.isLossDeal = "Loss Deal cannot be 'Sold' when Deal is 'No'";
+        if (!firstErrorField) {
+          firstErrorField = "isLossDeal";
+          firstErrorMessage = "Loss Deal cannot be 'Sold' when Deal is 'No'";
         }
       }
     }
