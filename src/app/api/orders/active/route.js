@@ -11,8 +11,8 @@ export async function GET(req) {
     const limit = parseInt(searchParams.get("limit")) || 10;
     const query = searchParams.get("query") || "";
 
-    // Base filter condition to fetch only 'Inactive' orders
-    let matchCondition = { orderStatus: "Inactive" };
+    // Base filter condition to fetch only 'Active' orders
+    let matchCondition = { orderStatus: "Active" };
 
     // Handle text search
     if (query) {
@@ -115,7 +115,7 @@ export async function GET(req) {
       totalCancelledOrders,
     });
   } catch (error) {
-    console.error("Error fetching orders:", error);
+    console.error("Error fetching active orders:", error);
     return NextResponse.json(
       { success: false, error: error.message },
       { status: 500 }

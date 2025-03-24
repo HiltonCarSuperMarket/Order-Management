@@ -22,7 +22,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { CalendarIcon, Clock } from "lucide-react";
+import { CalendarIcon, Clock, Loader2 } from "lucide-react";
 import Navbar from "@/components/shared/navbar";
 import { toast } from "sonner";
 
@@ -40,7 +40,7 @@ function SearchableSelect({ options, value, onChange, placeholder }) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between dark:bg-gray-700 dark:text-white dark:border-gray-600"
+          className="w-full justify-between dark:bg-gray-700 dark:text-white dark:border-gray-600 truncate "
         >
           {value ? value : placeholder}
         </Button>
@@ -63,9 +63,9 @@ function SearchableSelect({ options, value, onChange, placeholder }) {
                     onChange(option);
                     setOpen(false);
                   }}
-                  className="cursor-pointer dark:text-white dark:hover:bg-gray-700"
+                  className="cursor-pointer dark:text-white dark:hover:bg-gray-700 text-ellipsis"
                 >
-                  {option}
+                  <span className="truncate block w-full">{option}</span>
                 </CommandItem>
               ))}
             </CommandGroup>
@@ -77,6 +77,8 @@ function SearchableSelect({ options, value, onChange, placeholder }) {
 }
 
 export default function OrderRegistrationPage() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   // Get current UK date and time
   const getCurrentUKDateTime = () => {
     // Create a date object with the current time
@@ -360,6 +362,7 @@ export default function OrderRegistrationPage() {
       };
 
       try {
+        setIsSubmitting(true);
         const response = await axios.post("/api/orders", formattedData);
 
         // Show success toast
@@ -397,6 +400,8 @@ export default function OrderRegistrationPage() {
           "Error registering order:",
           error.response?.data || error.message
         );
+      } finally {
+        setIsSubmitting(false);
       }
     }
   };
@@ -784,6 +789,7 @@ export default function OrderRegistrationPage() {
                         handleChange("reasonForAction", value)
                       }
                       placeholder="Select reason"
+                      className="text-ellipsis"
                     />
                   </div>
 
@@ -826,7 +832,14 @@ export default function OrderRegistrationPage() {
                 size="lg"
                 className="bg-primary hover:bg-primary/90 dark:bg-primary dark:hover:bg-primary/90"
               >
-                Register Order
+                {isSubmitting ? (
+                  <div className="flex items-center justify-center ">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="text-xs ml-2">Registering...</span>
+                  </div>
+                ) : (
+                  "Register Order"
+                )}
               </Button>
             </div>
           </form>

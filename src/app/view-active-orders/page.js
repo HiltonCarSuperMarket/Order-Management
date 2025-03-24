@@ -44,21 +44,17 @@ import {
 import Navbar from "@/components/shared/navbar";
 import DeleteOrderDialog from "@/components/shared/delete-order-dialog";
 
-// And add this state and useEffect instead:
+// Initial filter options
 const initialFilterOptions = {
   enquiryType: [],
   salesExecutive: [],
   location: [],
   isPCTSheetReceivedWithinTime: [],
   pctStatus: [],
-  isShowUp: [],
-  isDeal: [],
-  reasonForAction: [],
-  isLossDeal: [],
   orderStatus: [],
 };
 
-export default function OrdersDashboard() {
+export default function ActiveOrdersDashboard() {
   const router = useRouter();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -69,26 +65,13 @@ export default function OrdersDashboard() {
   const [activeFilters, setActiveFilters] = useState({});
   const [months, setMonths] = useState([]);
   const controls = useAnimation();
-  const [filterOptions, setFilterOptions] = useState({
-    enquiryType: [],
-    salesExecutive: [],
-    location: [],
-    isPctSheetReceivedWithinTime: [],
-    pctStatus: [],
-    isShowUp: [],
-    isDeal: [],
-    reasonForAction: [],
-    isLossDeal: [],
-    orderStatus: [],
-  });
+  const [filterOptions, setFilterOptions] = useState(initialFilterOptions);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [orderToDelete, setOrderToDelete] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [totalSoldOrders, setTotalSoldOrders] = useState(0);
   const [totalCancelledOrders, setTotalCancelledOrders] = useState(0);
-
-  console.log("ORDERS", orders);
 
   // Column filters
   const [columnFilters, setColumnFilters] = useState({});
@@ -174,10 +157,6 @@ export default function OrdersDashboard() {
           location: data.location || [],
           isPctSheetReceivedWithinTime: data.isPCTSheetReceivedWithinTime || [],
           pctStatus: data.pctStatus || [],
-          isShowUp: data.isShowUp || [],
-          isDeal: data.isDeal || [],
-          reasonForAction: data.reasonForAction || [],
-          isLossDeal: data.isLossDeal || [],
           orderStatus: data.orderStatus || [],
         });
       } catch (error) {
@@ -236,26 +215,6 @@ export default function OrdersDashboard() {
     if (value.includes("Mechanical Major")) return "warning";
     if (value.includes("Transit")) return "info";
     if (value.includes("Inspection")) return "secondary";
-    return "default";
-  };
-
-  const getBadgeVariantForShowUp = (value) => {
-    if (value === "Yes") return "success";
-    if (value === "No") return "destructive";
-    if (value === "Active-Order") return "info";
-    return "default";
-  };
-
-  const getBadgeVariantForDeal = (value) => {
-    if (value === "Yes") return "success";
-    if (value === "No") return "destructive";
-    if (value === "Active-Order") return "info";
-    return "default";
-  };
-
-  const getBadgeVariantForLossDeal = (value) => {
-    if (value === "Sold") return "success";
-    if (value === "Yes") return "destructive";
     return "default";
   };
 
@@ -346,10 +305,10 @@ export default function OrdersDashboard() {
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      let url = `/api/orders/inactive?page=${currentPage}&limit=${limit}`;
+      let url = `/api/orders/active?page=${currentPage}&limit=${limit}`;
 
       if (search) {
-        url += `&search=${encodeURIComponent(search)}`;
+        url += `&query=${encodeURIComponent(search)}`;
       }
 
       // Add filter parameters
@@ -428,7 +387,7 @@ export default function OrdersDashboard() {
   // Get the statistics
   const orderStats = calculateOrderStats();
 
-  // Table columns configuration
+  // Table columns configuration - excluding the specified columns
   const columns = [
     { key: "entryDate", label: "Entry Date", format: formatDate },
     { key: "entryTime", label: "Entry Time" },
@@ -454,29 +413,6 @@ export default function OrdersDashboard() {
       badgeVariant: getBadgeVariantForPCTStatus,
     },
     {
-      key: "isShowUp",
-      label: "Show Up",
-      filterable: true,
-      badge: true,
-      badgeVariant: getBadgeVariantForShowUp,
-    },
-    {
-      key: "isDeal",
-      label: "Deal",
-      filterable: true,
-      badge: true,
-      badgeVariant: getBadgeVariantForDeal,
-    },
-    { key: "reasonForAction", label: "Reason", filterable: true },
-    { key: "reasonDetail", label: "Detail" },
-    {
-      key: "isLossDeal",
-      label: "Loss Deal",
-      filterable: true,
-      badge: true,
-      badgeVariant: getBadgeVariantForLossDeal,
-    },
-    {
       key: "orderStatus",
       label: "Order Status",
       filterable: true,
@@ -495,8 +431,7 @@ export default function OrdersDashboard() {
         variants={containerVariants}
       >
         <h2 className="text-center text-4xl font-bold pt-10 sm:pt-2">
-          {" "}
-          Inactive Orders Dashboard
+          Active Orders Dashboard
         </h2>
 
         {/* Order Highlight Cards */}
@@ -870,88 +805,6 @@ export default function OrdersDashboard() {
                                       </DropdownMenuCheckboxItem>
                                     ))}
 
-                                  {column.key === "isShowUp" &&
-                                    filterOptions.isShowUp.map((value) => (
-                                      <DropdownMenuCheckboxItem
-                                        key={`${column.key}-${value}`}
-                                        checked={(
-                                          columnFilters[column.key] || []
-                                        ).includes(value)}
-                                        onCheckedChange={(checked) =>
-                                          handleColumnFilterChange(
-                                            column.key,
-                                            value,
-                                            checked
-                                          )
-                                        }
-                                        className={"hover:bg-gray-800"}
-                                      >
-                                        {value}
-                                      </DropdownMenuCheckboxItem>
-                                    ))}
-
-                                  {column.key === "isDeal" &&
-                                    filterOptions.isDeal.map((value) => (
-                                      <DropdownMenuCheckboxItem
-                                        key={`${column.key}-${value}`}
-                                        checked={(
-                                          columnFilters[column.key] || []
-                                        ).includes(value)}
-                                        onCheckedChange={(checked) =>
-                                          handleColumnFilterChange(
-                                            column.key,
-                                            value,
-                                            checked
-                                          )
-                                        }
-                                        className={"hover:bg-gray-800"}
-                                      >
-                                        {value}
-                                      </DropdownMenuCheckboxItem>
-                                    ))}
-
-                                  {column.key === "reasonForAction" &&
-                                    filterOptions.reasonForAction.map(
-                                      (value) => (
-                                        <DropdownMenuCheckboxItem
-                                          key={`${column.key}-${value}`}
-                                          checked={(
-                                            columnFilters[column.key] || []
-                                          ).includes(value)}
-                                          onCheckedChange={(checked) =>
-                                            handleColumnFilterChange(
-                                              column.key,
-                                              value,
-                                              checked
-                                            )
-                                          }
-                                          className={"hover:bg-gray-800"}
-                                        >
-                                          {value}
-                                        </DropdownMenuCheckboxItem>
-                                      )
-                                    )}
-
-                                  {column.key === "isLossDeal" &&
-                                    filterOptions.isLossDeal.map((value) => (
-                                      <DropdownMenuCheckboxItem
-                                        key={`${column.key}-${value}`}
-                                        checked={(
-                                          columnFilters[column.key] || []
-                                        ).includes(value)}
-                                        onCheckedChange={(checked) =>
-                                          handleColumnFilterChange(
-                                            column.key,
-                                            value,
-                                            checked
-                                          )
-                                        }
-                                        className={"hover:bg-gray-800"}
-                                      >
-                                        {value}
-                                      </DropdownMenuCheckboxItem>
-                                    ))}
-
                                   {column.key === "orderStatus" &&
                                     filterOptions.orderStatus.map((value) => (
                                       <DropdownMenuCheckboxItem
@@ -971,40 +824,6 @@ export default function OrdersDashboard() {
                                         {value}
                                       </DropdownMenuCheckboxItem>
                                     ))}
-
-                                  {/* For columns not covered by the API, fall back to the current page data */}
-                                  {![
-                                    "enquiryType",
-                                    "salesExecutive",
-                                    "location",
-                                    "isPctSheetReceivedWithinTime",
-                                    "pctStatus",
-                                    "isShowUp",
-                                    "isDeal",
-                                    "reasonForAction",
-                                    "isLossDeal",
-                                    "orderStatus",
-                                  ].includes(column.key) &&
-                                    getUniqueColumnValues(column.key).map(
-                                      (value) => (
-                                        <DropdownMenuCheckboxItem
-                                          key={`${column.key}-${value}`}
-                                          checked={(
-                                            columnFilters[column.key] || []
-                                          ).includes(value)}
-                                          onCheckedChange={(checked) =>
-                                            handleColumnFilterChange(
-                                              column.key,
-                                              value,
-                                              checked
-                                            )
-                                          }
-                                          className={"hover:bg-gray-800"}
-                                        >
-                                          {value}
-                                        </DropdownMenuCheckboxItem>
-                                      )
-                                    )}
                                 </DropdownMenuContent>
                               </DropdownMenu>
                             )}
