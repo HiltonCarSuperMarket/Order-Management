@@ -43,6 +43,7 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/shared/navbar";
 import DeleteOrderDialog from "@/components/shared/delete-order-dialog";
+import { useDebounce } from "@/hooks/use-debounce";
 
 // And add this state and useEffect instead:
 const initialFilterOptions = {
@@ -66,6 +67,7 @@ export default function OrdersDashboard() {
   const [totalOrders, setTotalOrders] = useState(0);
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 200); // 500ms debounce delay
   const [activeFilters, setActiveFilters] = useState({});
   const [months, setMonths] = useState([]);
   const controls = useAnimation();
@@ -322,13 +324,19 @@ export default function OrdersDashboard() {
   // Effect to fetch orders when filters or pagination changes
   useEffect(() => {
     fetchOrders();
-  }, [currentPage, limit, activeFilters, columnFilters, months, search]);
+  }, [
+    currentPage,
+    limit,
+    activeFilters,
+    columnFilters,
+    months,
+    debouncedSearch,
+  ]);
 
-  // Handle search
-  const handleSearch = () => {
+  // Reset to first page when search changes
+  useEffect(() => {
     setCurrentPage(1);
-    fetchOrders();
-  };
+  }, [debouncedSearch]);
 
   // Calculate total pages
   const totalPages = Math.ceil(totalOrders / limit);
@@ -348,8 +356,8 @@ export default function OrdersDashboard() {
     try {
       let url = `/api/orders/inactive?page=${currentPage}&limit=${limit}`;
 
-      if (search) {
-        url += `&search=${encodeURIComponent(search)}`;
+      if (debouncedSearch) {
+        url += `&search=${encodeURIComponent(debouncedSearch)}`;
       }
 
       // Add filter parameters
@@ -585,14 +593,15 @@ export default function OrdersDashboard() {
                 <div className="flex flex-wrap gap-3 items-center">
                   <div className="relative flex-1 min-w-[240px]">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="search"
-                      placeholder="Search orders..."
-                      className="pl-8"
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                      onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                    />
+                    <motion.div transition={{ duration: 0.3 }}>
+                      <Input
+                        type="search"
+                        placeholder="Search orders..."
+                        className="pl-8"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                      />
+                    </motion.div>
                   </div>
 
                   {/* Month dropdown with checkboxes */}

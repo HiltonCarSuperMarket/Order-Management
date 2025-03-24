@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import { useState, useEffect } from "react";
@@ -38,11 +39,11 @@ import {
   X,
   Edit,
   BarChart3,
-  CheckCircle,
-  XCircle,
 } from "lucide-react";
 import Navbar from "@/components/shared/navbar";
 import DeleteOrderDialog from "@/components/shared/delete-order-dialog";
+import { useDebounce } from "@/hooks/use-debounce";
+import ActiveOrderCard from "@/components/shared/active-order-card";
 
 // Initial filter options
 const initialFilterOptions = {
@@ -62,14 +63,14 @@ export default function ActiveOrdersDashboard() {
   const [totalOrders, setTotalOrders] = useState(0);
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 200); // 500ms debounce delay
   const [activeFilters, setActiveFilters] = useState({});
   const [months, setMonths] = useState([]);
   const controls = useAnimation();
   const [filterOptions, setFilterOptions] = useState(initialFilterOptions);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [orderToDelete, setOrderToDelete] = useState(null);
-  const [selectedOrder, setSelectedOrder] = useState(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+
   const [totalSoldOrders, setTotalSoldOrders] = useState(0);
   const [totalCancelledOrders, setTotalCancelledOrders] = useState(0);
 
@@ -281,25 +282,17 @@ export default function ActiveOrdersDashboard() {
   // Effect to fetch orders when filters or pagination changes
   useEffect(() => {
     fetchOrders();
-  }, [currentPage, limit, activeFilters, columnFilters, months, search]);
-
-  // Handle search
-  const handleSearch = () => {
-    setCurrentPage(1);
-    fetchOrders();
-  };
+  }, [
+    currentPage,
+    limit,
+    activeFilters,
+    columnFilters,
+    months,
+    debouncedSearch,
+  ]);
 
   // Calculate total pages
   const totalPages = Math.ceil(totalOrders / limit);
-
-  // Get unique values for a column from orders data
-  const getUniqueColumnValues = (columnName) => {
-    if (!orders.length) return [];
-
-    const values = orders.map((order) => order[columnName]);
-
-    return [...new Set(values)].filter(Boolean);
-  };
 
   // Fetch orders with filters
   const fetchOrders = async () => {
@@ -307,8 +300,8 @@ export default function ActiveOrdersDashboard() {
     try {
       let url = `/api/orders/active?page=${currentPage}&limit=${limit}`;
 
-      if (search) {
-        url += `&query=${encodeURIComponent(search)}`;
+      if (debouncedSearch) {
+        url += `&search=${encodeURIComponent(debouncedSearch)}`;
       }
 
       // Add filter parameters
@@ -363,30 +356,6 @@ export default function ActiveOrdersDashboard() {
     router.push(`/edit-order/${orderId}`);
   };
 
-  // Calculate order statistics for the cards
-  const calculateOrderStats = () => {
-    // Use the total counts from the API instead of counting from the current page
-    const soldOrders = totalSoldOrders;
-    const cancelledOrders = totalCancelledOrders;
-
-    // Calculate percentages
-    const soldPercentage =
-      totalOrders > 0 ? Math.round((soldOrders / totalOrders) * 100) : 0;
-
-    const cancelledPercentage =
-      totalOrders > 0 ? Math.round((cancelledOrders / totalOrders) * 100) : 0;
-
-    return {
-      soldOrders,
-      cancelledOrders,
-      soldPercentage,
-      cancelledPercentage,
-    };
-  };
-
-  // Get the statistics
-  const orderStats = calculateOrderStats();
-
   // Table columns configuration - excluding the specified columns
   const columns = [
     { key: "entryDate", label: "Entry Date", format: formatDate },
@@ -421,6 +390,11 @@ export default function ActiveOrdersDashboard() {
     },
   ];
 
+  // Reset to first page when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch]);
+
   return (
     <>
       <Navbar />
@@ -437,23 +411,13 @@ export default function ActiveOrdersDashboard() {
         {/* Order Highlight Cards */}
         <motion.div
           variants={itemVariants}
-          className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+          className="grid gap-4 md:grid-cols-1 lg:grid-cols-1"
         >
-          {/* Total Orders Card */}
-          <Card className="border border-[#2C45AA]/20 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-              <CardTitle className="text-sm font-medium">
-                Total Orders
-              </CardTitle>
-              <BarChart3 className="w-4 h-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{totalOrders}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Total filtered orders
-              </p>
-            </CardContent>
-          </Card>
+          <ActiveOrderCard
+            totalOrders={totalOrders}
+            title="Active Orders"
+            subtitle="Total filtered orders"
+          />
         </motion.div>
 
         <motion.div variants={itemVariants}>
@@ -466,14 +430,15 @@ export default function ActiveOrdersDashboard() {
                 <div className="flex flex-wrap gap-3 items-center">
                   <div className="relative flex-1 min-w-[240px]">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="search"
-                      placeholder="Search orders..."
-                      className="pl-8"
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                      onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                    />
+                    <motion.div transition={{ duration: 0.3 }}>
+                      <Input
+                        type="search"
+                        placeholder="Search orders..."
+                        className="pl-8"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                      />
+                    </motion.div>
                   </div>
 
                   {/* Month dropdown with checkboxes */}
