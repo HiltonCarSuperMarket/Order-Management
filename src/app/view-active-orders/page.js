@@ -421,7 +421,7 @@ export default function ActiveOrdersDashboard() {
           <motion.div variants={itemVariants}>
             <Card className="border border-[#2C45AA]/20 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 h-full">
               <CardHeader className="pb-3">
-                <CardTitle>Order Filters</CardTitle>
+                <CardTitle className={"text-lg"}>Order Filters</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col space-y-4">

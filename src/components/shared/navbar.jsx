@@ -75,14 +75,14 @@ const Navbar = () => {
             className="text-gray-700 hover:text-[#2C45AA] font-medium py-2 dark:text-gray-300 dark:hover:text-[#4e6cde]"
             onClick={() => setMobileMenuOpen(false)}
           >
-            View Active Orders
+            Active Orders
           </Link>
           <Link
             href="/view-orders"
             className="text-gray-700 hover:text-[#2C45AA] font-medium py-2 dark:text-gray-300 dark:hover:text-[#4e6cde]"
             onClick={() => setMobileMenuOpen(false)}
           >
-            View Inactive Orders
+            Inactive Orders
           </Link>
           {ADMIN_ROLE && (
             <Link
@@ -153,7 +153,7 @@ const Navbar = () => {
                   className="text-gray-700 hover:text-[#2C45AA] font-medium py-2 dark:text-gray-300 dark:hover:text-[#4e6cde]"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  View Active Orders
+                  Active Orders
                 </Link>
               }
               {
@@ -162,7 +162,7 @@ const Navbar = () => {
                   className="text-gray-700 hover:text-[#2C45AA] font-medium py-2 dark:text-gray-300 dark:hover:text-[#4e6cde]"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  View Inactive Orders
+                  Inactive Orders
                 </Link>
               }
               {role && (
