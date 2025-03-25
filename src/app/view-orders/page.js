@@ -44,6 +44,12 @@ import {
 import Navbar from "@/components/shared/navbar";
 import DeleteOrderDialog from "@/components/shared/delete-order-dialog";
 import { useDebounce } from "@/hooks/use-debounce";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 // And add this state and useEffect instead:
 const initialFilterOptions = {
@@ -158,6 +164,30 @@ export default function OrdersDashboard() {
       transition: {
         duration: 0.2,
         ease: [0.25, 0.1, 0.25, 1.0],
+      },
+    },
+  };
+
+  // Enhanced card animation variants
+  const cardVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 20,
+        duration: 0.5,
+      },
+    },
+    hover: {
+      y: -5,
+      boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
+      transition: {
+        type: "spring",
+        stiffness: 400,
+        damping: 10,
       },
     },
   };
@@ -494,724 +524,812 @@ export default function OrdersDashboard() {
   ];
 
   return (
-    <>
-      <Navbar />
-      <motion.div
-        className="container mx-auto py-20 space-y-6 px-4 md:px-8"
-        initial="hidden"
-        animate="visible"
-        variants={containerVariants}
-      >
-        <h2 className="text-center text-4xl font-bold pt-10 sm:pt-2">
-          {" "}
-          Inactive Orders Dashboard
-        </h2>
-
-        {/* Order Highlight Cards */}
+    <TooltipProvider>
+      <>
+        <Navbar />
         <motion.div
-          variants={itemVariants}
-          className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+          className="container mx-auto py-16 space-y-6 px-4 md:px-8"
+          initial="hidden"
+          animate="visible"
+          variants={containerVariants}
         >
-          {/* Total Orders Card */}
-          <Card className="border border-[#2C45AA]/20 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-              <CardTitle className="text-sm font-medium">
-                Total Orders
-              </CardTitle>
-              <BarChart3 className="w-4 h-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{totalOrders}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Total filtered orders
-              </p>
-            </CardContent>
-          </Card>
+          <h2 className="text-center text-3xl font-bold pt-6 sm:pt-8">
+            {" "}
+            Inactive Orders Dashboard
+          </h2>
 
-          {/* Sold Orders Card */}
-          <Card className="border border-[#2C45AA]/20 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-              <CardTitle className="text-sm font-medium">Sold Orders</CardTitle>
-              <CheckCircle className="w-4 h-4 text-green-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{orderStats.soldOrders}</div>
-              <div className="flex items-center mt-1">
-                <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                  <div
-                    className="bg-green-500 h-2.5 rounded-full"
-                    style={{ width: `${orderStats.soldPercentage}%` }}
-                  ></div>
-                </div>
-                <span className="text-xs text-muted-foreground ml-2">
-                  {orderStats.soldPercentage}%
-                </span>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Sold Vehicle Orders
-              </p>
-            </CardContent>
-          </Card>
+          {/* Order Highlight Cards */}
+          <motion.div
+            variants={itemVariants}
+            className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+          >
+            {/* Total Orders Card */}
+            <motion.div
+              variants={cardVariants}
+              whileHover="hover"
+              initial="hidden"
+              animate="visible"
+            >
+              <Card className="border border-[#2C45AA]/20 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 overflow-hidden h-full">
+                <CardHeader className="flex flex-row items-center justify-between py-1 px-4 space-y-0">
+                  <CardTitle className="text-sm font-medium">
+                    Total Orders
+                  </CardTitle>
+                  <BarChart3 className="w-4 h-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent className=" px-4">
+                  <div className="text-2xl font-bold">{totalOrders}</div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Total filtered orders
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
 
-          {/* Cancelled Orders Card */}
-          <Card className="border border-[#2C45AA]/20 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-              <CardTitle className="text-sm font-medium">
-                Cancelled Orders
-              </CardTitle>
-              <XCircle className="w-4 h-4 text-red-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {orderStats.cancelledOrders}
-              </div>
-              <div className="flex items-center mt-1">
-                <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                  <div
-                    className="bg-red-500 h-2.5 rounded-full"
-                    style={{ width: `${orderStats.cancelledPercentage}%` }}
-                  ></div>
-                </div>
-                <span className="text-xs text-muted-foreground ml-2">
-                  {orderStats.cancelledPercentage}%
-                </span>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Cancelled Vehicle Orders
-              </p>
-            </CardContent>
-          </Card>
-        </motion.div>
+            {/* Sold Orders Card */}
+            <motion.div
+              variants={cardVariants}
+              whileHover="hover"
+              initial="hidden"
+              animate="visible"
+              transition={{ delay: 0.1 }}
+            >
+              <Card className="border border-[#2C45AA]/20 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 overflow-hidden">
+                <CardHeader className="flex flex-row items-center justify-between py-1 px-4 space-y-0">
+                  <CardTitle className="text-sm font-medium">
+                    Sold Orders
+                  </CardTitle>
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                </CardHeader>
+                <CardContent className=" px-4">
+                  <div className="text-2xl font-bold">
+                    {orderStats.soldOrders}
+                  </div>
+                  <div className="flex items-center mt-1">
+                    <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                      <motion.div
+                        className="bg-green-500 h-2.5 rounded-full"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${orderStats.soldPercentage}%` }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
+                      ></motion.div>
+                    </div>
+                    <span className="text-xs text-muted-foreground ml-2">
+                      {orderStats.soldPercentage}%
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Sold Vehicle Orders
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
 
-        <motion.div variants={itemVariants}>
-          <Card className="border border-[#2C45AA]/20  bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-            <CardHeader className="pb-3">
-              <CardTitle>Order Filters</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col space-y-4">
-                <div className="flex flex-wrap gap-3 items-center">
-                  <div className="relative flex-1 min-w-[240px]">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <motion.div transition={{ duration: 0.3 }}>
-                      <Input
-                        type="search"
-                        placeholder="Search orders..."
-                        className="pl-8"
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                      />
-                    </motion.div>
+            {/* Cancelled Orders Card */}
+            <motion.div
+              variants={cardVariants}
+              whileHover="hover"
+              initial="hidden"
+              animate="visible"
+              transition={{ delay: 0.2 }}
+            >
+              <Card className="border border-[#2C45AA]/20 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 overflow-hidden">
+                <CardHeader className="flex flex-row items-center justify-between py-1 px-4 space-y-0">
+                  <CardTitle className="text-sm font-medium">
+                    Cancelled Orders
+                  </CardTitle>
+                  <XCircle className="w-4 h-4 text-red-500" />
+                </CardHeader>
+                <CardContent className=" px-4">
+                  <div className="text-2xl font-bold">
+                    {orderStats.cancelledOrders}
+                  </div>
+                  <div className="flex items-center mt-1">
+                    <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                      <motion.div
+                        className="bg-red-500 h-2.5 rounded-full"
+                        initial={{ width: 0 }}
+                        animate={{
+                          width: `${orderStats.cancelledPercentage}%`,
+                        }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
+                      ></motion.div>
+                    </div>
+                    <span className="text-xs text-muted-foreground ml-2">
+                      {orderStats.cancelledPercentage}%
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Cancelled Vehicle Orders
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </motion.div>
+
+          <motion.div variants={itemVariants}>
+            <Card className="border border-[#2C45AA]/20 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+              <CardHeader className=" pt-2 px-4">
+                <CardTitle className="text-base">Order Filters</CardTitle>
+              </CardHeader>
+              <CardContent className="py-1 px-4">
+                <div className="flex flex-col space-y-3">
+                  <div className="flex flex-wrap gap-3 items-center">
+                    <div className="relative flex-1 min-w-[240px]">
+                      <div className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground">
+                        <Search className="h-4 w-4 transition-colors group-hover:text-primary" />
+                      </div>
+                      <motion.div
+                        className="group"
+                        whileHover={{ scale: 1.01 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <Input
+                          type="search"
+                          placeholder="Search orders..."
+                          className="pl-8 border-primary/20 focus-visible:ring-primary/30 transition-all duration-300 shadow-sm hover:shadow-md focus-visible:shadow-md"
+                          value={search}
+                          onChange={(e) => setSearch(e.target.value)}
+                        />
+                      </motion.div>
+                    </div>
+
+                    {/* Month dropdown with checkboxes */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="flex items-center gap-2"
+                        >
+                          <Filter className="h-4 w-4" />
+                          <span>Months</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        align="start"
+                        className="w-56 max-h-[300px] overflow-y-auto dark:bg-gray-800 "
+                      >
+                        {availableMonths.map((month) => (
+                          <DropdownMenuCheckboxItem
+                            key={month}
+                            checked={months.includes(month)}
+                            onCheckedChange={(checked) =>
+                              handleMonthSelect(month, checked)
+                            }
+                          >
+                            {month}
+                          </DropdownMenuCheckboxItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    {(Object.keys(activeFilters).length > 0 ||
+                      Object.keys(columnFilters).length > 0 ||
+                      months.length > 0) && (
+                      <Button
+                        variant="ghost"
+                        onClick={clearAllFilters}
+                        size="sm"
+                        className="hover:bg-primary/10 hover:text-primary transition-colors"
+                      >
+                        Clear All
+                      </Button>
+                    )}
                   </div>
 
-                  {/* Month dropdown with checkboxes */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="flex items-center gap-2"
-                      >
-                        <Filter className="h-4 w-4" />
-                        <span>Months</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      align="start"
-                      className="w-56 max-h-[300px] overflow-y-auto dark:bg-gray-800 "
-                    >
-                      {availableMonths.map((month) => (
-                        <DropdownMenuCheckboxItem
-                          key={month}
-                          checked={months.includes(month)}
-                          onCheckedChange={(checked) =>
-                            handleMonthSelect(month, checked)
-                          }
-                        >
-                          {month}
-                        </DropdownMenuCheckboxItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-
+                  {/* Active filters display */}
                   {(Object.keys(activeFilters).length > 0 ||
                     Object.keys(columnFilters).length > 0 ||
                     months.length > 0) && (
-                    <Button variant="ghost" onClick={clearAllFilters} size="sm">
-                      Clear All
-                    </Button>
-                  )}
-                </div>
-
-                {/* Active filters display */}
-                {(Object.keys(activeFilters).length > 0 ||
-                  Object.keys(columnFilters).length > 0 ||
-                  months.length > 0) && (
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    <AnimatePresence>
-                      {months.map((month) => (
-                        <motion.div
-                          key={`month-${month}`}
-                          variants={filterBadgeVariants}
-                          initial="hidden"
-                          animate="visible"
-                          exit="exit"
-                          layout
-                        >
-                          <Badge
-                            variant="secondary"
-                            className="flex items-center gap-1 dark:bg-gray-800"
-                          >
-                            <span>Month: {month}</span>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-4 w-4 p-0"
-                              onClick={() => removeMonth(month)}
-                            >
-                              <X className="h-3 w-3" />
-                            </Button>
-                          </Badge>
-                        </motion.div>
-                      ))}
-
-                      {Object.entries(activeFilters).map(
-                        ([filterName, values]) =>
-                          values.map((value) => (
-                            <motion.div
-                              key={`${filterName}-${value}`}
-                              variants={filterBadgeVariants}
-                              initial="hidden"
-                              animate="visible"
-                              exit="exit"
-                              layout
-                            >
-                              <Badge
-                                variant="secondary"
-                                className="flex items-center gap-1 dark:bg-gray-800"
-                              >
-                                <span className="capitalize">
-                                  {filterName}: {value}
-                                </span>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-4 w-4 p-0"
-                                  onClick={() =>
-                                    removeFilter(filterName, value)
-                                  }
-                                >
-                                  <X className="h-3 w-3" />
-                                </Button>
-                              </Badge>
-                            </motion.div>
-                          ))
-                      )}
-
-                      {Object.entries(columnFilters).map(
-                        ([columnName, values]) =>
-                          values.map((value) => (
-                            <motion.div
-                              key={`col-${columnName}-${value}`}
-                              variants={filterBadgeVariants}
-                              initial="hidden"
-                              animate="visible"
-                              exit="exit"
-                              layout
-                            >
-                              <Badge
-                                variant="secondary"
-                                className="flex items-center gap-1 dark:bg-gray-800"
-                              >
-                                <span className="capitalize">
-                                  {columnName}: {value}
-                                </span>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-4 w-4 p-0"
-                                  onClick={() =>
-                                    removeColumnFilter(columnName, value)
-                                  }
-                                >
-                                  <X className="h-3 w-3" />
-                                </Button>
-                              </Badge>
-                            </motion.div>
-                          ))
-                      )}
-                    </AnimatePresence>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div variants={itemVariants}>
-          <Card className="border border-[#2C45AA]/20 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-800  dark:hover:bg-gray-700">
-                    <TableRow>
-                      {columns.map((column) => (
-                        <TableHead key={column.key} className="relative">
-                          <div className="flex items-center gap-1">
-                            {column.label}
-
-                            {column.filterable && (
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-6 w-6 p-0 ml-1"
-                                  >
-                                    <Filter className="h-3 w-3" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent
-                                  align="start"
-                                  className="w-56 max-h-[300px] overflow-y-auto dark:hover:bg-gray-800 "
-                                >
-                                  {column.key === "enquiryType" &&
-                                    filterOptions.enquiryType.map((value) => (
-                                      <DropdownMenuCheckboxItem
-                                        key={`${column.key}-${value}`}
-                                        checked={(
-                                          columnFilters[column.key] || []
-                                        ).includes(value)}
-                                        onCheckedChange={(checked) =>
-                                          handleColumnFilterChange(
-                                            column.key,
-                                            value,
-                                            checked
-                                          )
-                                        }
-                                        className={"hover:bg-gray-800"}
-                                      >
-                                        {value}
-                                      </DropdownMenuCheckboxItem>
-                                    ))}
-
-                                  {column.key === "salesExecutive" &&
-                                    filterOptions.salesExecutive.map(
-                                      (value) => (
-                                        <DropdownMenuCheckboxItem
-                                          key={`${column.key}-${value}`}
-                                          checked={(
-                                            columnFilters[column.key] || []
-                                          ).includes(value)}
-                                          onCheckedChange={(checked) =>
-                                            handleColumnFilterChange(
-                                              column.key,
-                                              value,
-                                              checked
-                                            )
-                                          }
-                                          className={"hover:bg-gray-800"}
-                                        >
-                                          {value}
-                                        </DropdownMenuCheckboxItem>
-                                      )
-                                    )}
-
-                                  {column.key === "location" &&
-                                    filterOptions.location.map((value) => (
-                                      <DropdownMenuCheckboxItem
-                                        key={`${column.key}-${value}`}
-                                        checked={(
-                                          columnFilters[column.key] || []
-                                        ).includes(value)}
-                                        onCheckedChange={(checked) =>
-                                          handleColumnFilterChange(
-                                            column.key,
-                                            value,
-                                            checked
-                                          )
-                                        }
-                                        className={"hover:bg-gray-800"}
-                                      >
-                                        {value}
-                                      </DropdownMenuCheckboxItem>
-                                    ))}
-
-                                  {column.key ===
-                                    "isPctSheetReceivedWithinTime" &&
-                                    filterOptions.isPCTSheetReceivedWithinTime?.map(
-                                      (value) => (
-                                        <DropdownMenuCheckboxItem
-                                          key={`${column.key}-${value}`}
-                                          checked={(
-                                            columnFilters[column.key] || []
-                                          ).includes(value)}
-                                          onCheckedChange={(checked) =>
-                                            handleColumnFilterChange(
-                                              column.key,
-                                              value,
-                                              checked
-                                            )
-                                          }
-                                          className={"hover:bg-gray-800"}
-                                        >
-                                          {value}
-                                        </DropdownMenuCheckboxItem>
-                                      )
-                                    )}
-
-                                  {column.key === "pctStatus" &&
-                                    filterOptions.pctStatus.map((value) => (
-                                      <DropdownMenuCheckboxItem
-                                        key={`${column.key}-${value}`}
-                                        checked={(
-                                          columnFilters[column.key] || []
-                                        ).includes(value)}
-                                        onCheckedChange={(checked) =>
-                                          handleColumnFilterChange(
-                                            column.key,
-                                            value,
-                                            checked
-                                          )
-                                        }
-                                        className={"hover:bg-gray-800"}
-                                      >
-                                        {value}
-                                      </DropdownMenuCheckboxItem>
-                                    ))}
-
-                                  {column.key === "isShowUp" &&
-                                    filterOptions.isShowUp.map((value) => (
-                                      <DropdownMenuCheckboxItem
-                                        key={`${column.key}-${value}`}
-                                        checked={(
-                                          columnFilters[column.key] || []
-                                        ).includes(value)}
-                                        onCheckedChange={(checked) =>
-                                          handleColumnFilterChange(
-                                            column.key,
-                                            value,
-                                            checked
-                                          )
-                                        }
-                                        className={"hover:bg-gray-800"}
-                                      >
-                                        {value}
-                                      </DropdownMenuCheckboxItem>
-                                    ))}
-
-                                  {column.key === "isDeal" &&
-                                    filterOptions.isDeal.map((value) => (
-                                      <DropdownMenuCheckboxItem
-                                        key={`${column.key}-${value}`}
-                                        checked={(
-                                          columnFilters[column.key] || []
-                                        ).includes(value)}
-                                        onCheckedChange={(checked) =>
-                                          handleColumnFilterChange(
-                                            column.key,
-                                            value,
-                                            checked
-                                          )
-                                        }
-                                        className={"hover:bg-gray-800"}
-                                      >
-                                        {value}
-                                      </DropdownMenuCheckboxItem>
-                                    ))}
-
-                                  {column.key === "reasonForAction" &&
-                                    filterOptions.reasonForAction.map(
-                                      (value) => (
-                                        <DropdownMenuCheckboxItem
-                                          key={`${column.key}-${value}`}
-                                          checked={(
-                                            columnFilters[column.key] || []
-                                          ).includes(value)}
-                                          onCheckedChange={(checked) =>
-                                            handleColumnFilterChange(
-                                              column.key,
-                                              value,
-                                              checked
-                                            )
-                                          }
-                                          className={"hover:bg-gray-800"}
-                                        >
-                                          {value}
-                                        </DropdownMenuCheckboxItem>
-                                      )
-                                    )}
-
-                                  {column.key === "isLossDeal" &&
-                                    filterOptions.isLossDeal.map((value) => (
-                                      <DropdownMenuCheckboxItem
-                                        key={`${column.key}-${value}`}
-                                        checked={(
-                                          columnFilters[column.key] || []
-                                        ).includes(value)}
-                                        onCheckedChange={(checked) =>
-                                          handleColumnFilterChange(
-                                            column.key,
-                                            value,
-                                            checked
-                                          )
-                                        }
-                                        className={"hover:bg-gray-800"}
-                                      >
-                                        {value}
-                                      </DropdownMenuCheckboxItem>
-                                    ))}
-
-                                  {column.key === "orderStatus" &&
-                                    filterOptions.orderStatus.map((value) => (
-                                      <DropdownMenuCheckboxItem
-                                        key={`${column.key}-${value}`}
-                                        checked={(
-                                          columnFilters[column.key] || []
-                                        ).includes(value)}
-                                        onCheckedChange={(checked) =>
-                                          handleColumnFilterChange(
-                                            column.key,
-                                            value,
-                                            checked
-                                          )
-                                        }
-                                        className={"hover:bg-gray-800"}
-                                      >
-                                        {value}
-                                      </DropdownMenuCheckboxItem>
-                                    ))}
-
-                                  {/* For columns not covered by the API, fall back to the current page data */}
-                                  {![
-                                    "enquiryType",
-                                    "salesExecutive",
-                                    "location",
-                                    "isPctSheetReceivedWithinTime",
-                                    "pctStatus",
-                                    "isShowUp",
-                                    "isDeal",
-                                    "reasonForAction",
-                                    "isLossDeal",
-                                    "orderStatus",
-                                  ].includes(column.key) &&
-                                    getUniqueColumnValues(column.key).map(
-                                      (value) => (
-                                        <DropdownMenuCheckboxItem
-                                          key={`${column.key}-${value}`}
-                                          checked={(
-                                            columnFilters[column.key] || []
-                                          ).includes(value)}
-                                          onCheckedChange={(checked) =>
-                                            handleColumnFilterChange(
-                                              column.key,
-                                              value,
-                                              checked
-                                            )
-                                          }
-                                          className={"hover:bg-gray-800"}
-                                        >
-                                          {value}
-                                        </DropdownMenuCheckboxItem>
-                                      )
-                                    )}
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            )}
-                          </div>
-                        </TableHead>
-                      ))}
-                      <TableHead className="w-[120px]">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <AnimatePresence>
-                      {loading ? (
-                        <TableRow>
-                          <TableCell
-                            colSpan={columns.length + 1}
-                            className="h-24 text-center"
-                          >
-                            <motion.div
-                              className="flex justify-center"
-                              animate={{
-                                rotate: 360,
-                                transition: {
-                                  duration: 1.5,
-                                  repeat: Number.POSITIVE_INFINITY,
-                                  ease: "linear",
-                                },
-                              }}
-                            >
-                              <div className="h-8 w-8 rounded-full border-2 border-[#2C45AA] border-t-transparent"></div>
-                            </motion.div>
-                          </TableCell>
-                        </TableRow>
-                      ) : orders.length === 0 ? (
-                        <TableRow>
-                          <TableCell
-                            colSpan={columns.length + 1}
-                            className="h-24 text-center"
-                          >
-                            No orders found
-                          </TableCell>
-                        </TableRow>
-                      ) : (
-                        orders.map((order, index) => (
-                          <motion.tr
-                            key={order._id}
-                            custom={index}
-                            variants={tableRowVariants}
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      <AnimatePresence>
+                        {months.map((month) => (
+                          <motion.div
+                            key={`month-${month}`}
+                            variants={filterBadgeVariants}
                             initial="hidden"
                             animate="visible"
                             exit="exit"
-                            className="border-b transition-colors dark:hover:bg-gray-800 data-[state=selected]:bg-muted"
+                            layout
                           >
-                            {columns.map((column) => (
-                              <TableCell key={`${order._id}-${column.key}`}>
-                                {column.badge ? (
-                                  <AnimatedBadge
-                                    variant={column.badgeVariant(
-                                      order[column.key]
-                                    )}
+                            <Badge
+                              variant="secondary"
+                              className="flex items-center gap-1 dark:bg-gray-800"
+                            >
+                              <span>Month: {month}</span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-4 w-4 p-0"
+                                onClick={() => removeMonth(month)}
+                              >
+                                <X className="h-3 w-3" />
+                              </Button>
+                            </Badge>
+                          </motion.div>
+                        ))}
+
+                        {Object.entries(activeFilters).map(
+                          ([filterName, values]) =>
+                            values.map((value) => (
+                              <motion.div
+                                key={`${filterName}-${value}`}
+                                variants={filterBadgeVariants}
+                                initial="hidden"
+                                animate="visible"
+                                exit="exit"
+                                layout
+                              >
+                                <Badge
+                                  variant="secondary"
+                                  className="flex items-center gap-1 dark:bg-gray-800"
+                                >
+                                  <span className="capitalize">
+                                    {filterName}: {value}
+                                  </span>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-4 w-4 p-0"
+                                    onClick={() =>
+                                      removeFilter(filterName, value)
+                                    }
                                   >
-                                    {order[column.key]}
-                                  </AnimatedBadge>
-                                ) : column.format ? (
-                                  column.format(order[column.key])
-                                ) : (
-                                  order[column.key] || "-"
-                                )}
-                              </TableCell>
-                            ))}
-                            <TableCell>
-                              <div className="flex items-center gap-2">
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="cursor-pointer"
-                                  onClick={() => handleEditOrder(order._id)}
+                                    <X className="h-3 w-3" />
+                                  </Button>
+                                </Badge>
+                              </motion.div>
+                            ))
+                        )}
+
+                        {Object.entries(columnFilters).map(
+                          ([columnName, values]) =>
+                            values.map((value) => (
+                              <motion.div
+                                key={`col-${columnName}-${value}`}
+                                variants={filterBadgeVariants}
+                                initial="hidden"
+                                animate="visible"
+                                exit="exit"
+                                layout
+                              >
+                                <Badge
+                                  variant="secondary"
+                                  className="flex items-center gap-1 dark:bg-gray-800"
                                 >
-                                  <Edit className="text-blue-500 w-4 h-4" />
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="cursor-pointer"
-                                  onClick={() => {
-                                    setOrderToDelete(order._id);
-                                    setIsDeleteDialogOpen(true);
-                                  }}
-                                >
-                                  <Trash2 className="text-red-500 w-4 h-4" />
-                                </Button>
-                              </div>
+                                  <span className="capitalize">
+                                    {columnName}: {value}
+                                  </span>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-4 w-4 p-0"
+                                    onClick={() =>
+                                      removeColumnFilter(columnName, value)
+                                    }
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </Button>
+                                </Badge>
+                              </motion.div>
+                            ))
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.div variants={itemVariants}>
+            <Card className="border border-[#2C45AA]/20 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700">
+                      <TableRow>
+                        {columns.map((column) => (
+                          <TableHead
+                            key={column.key}
+                            className="relative py-2 px-2 text-xs font-medium"
+                          >
+                            <div className="flex items-center gap-1">
+                              {column.label}
+
+                              {column.filterable && (
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-5 w-5 p-0 ml-1"
+                                    >
+                                      <Filter className="h-3 w-3" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent
+                                    align="start"
+                                    className="w-56 max-h-[300px] overflow-y-auto dark:hover:bg-gray-800 "
+                                  >
+                                    {column.key === "enquiryType" &&
+                                      filterOptions.enquiryType.map((value) => (
+                                        <DropdownMenuCheckboxItem
+                                          key={`${column.key}-${value}`}
+                                          checked={(
+                                            columnFilters[column.key] || []
+                                          ).includes(value)}
+                                          onCheckedChange={(checked) =>
+                                            handleColumnFilterChange(
+                                              column.key,
+                                              value,
+                                              checked
+                                            )
+                                          }
+                                          className={"hover:bg-gray-800"}
+                                        >
+                                          {value}
+                                        </DropdownMenuCheckboxItem>
+                                      ))}
+
+                                    {column.key === "salesExecutive" &&
+                                      filterOptions.salesExecutive.map(
+                                        (value) => (
+                                          <DropdownMenuCheckboxItem
+                                            key={`${column.key}-${value}`}
+                                            checked={(
+                                              columnFilters[column.key] || []
+                                            ).includes(value)}
+                                            onCheckedChange={(checked) =>
+                                              handleColumnFilterChange(
+                                                column.key,
+                                                value,
+                                                checked
+                                              )
+                                            }
+                                            className={"hover:bg-gray-800"}
+                                          >
+                                            {value}
+                                          </DropdownMenuCheckboxItem>
+                                        )
+                                      )}
+
+                                    {column.key === "location" &&
+                                      filterOptions.location.map((value) => (
+                                        <DropdownMenuCheckboxItem
+                                          key={`${column.key}-${value}`}
+                                          checked={(
+                                            columnFilters[column.key] || []
+                                          ).includes(value)}
+                                          onCheckedChange={(checked) =>
+                                            handleColumnFilterChange(
+                                              column.key,
+                                              value,
+                                              checked
+                                            )
+                                          }
+                                          className={"hover:bg-gray-800"}
+                                        >
+                                          {value}
+                                        </DropdownMenuCheckboxItem>
+                                      ))}
+
+                                    {column.key ===
+                                      "isPctSheetReceivedWithinTime" &&
+                                      filterOptions.isPCTSheetReceivedWithinTime?.map(
+                                        (value) => (
+                                          <DropdownMenuCheckboxItem
+                                            key={`${column.key}-${value}`}
+                                            checked={(
+                                              columnFilters[column.key] || []
+                                            ).includes(value)}
+                                            onCheckedChange={(checked) =>
+                                              handleColumnFilterChange(
+                                                column.key,
+                                                value,
+                                                checked
+                                              )
+                                            }
+                                            className={"hover:bg-gray-800"}
+                                          >
+                                            {value}
+                                          </DropdownMenuCheckboxItem>
+                                        )
+                                      )}
+
+                                    {column.key === "pctStatus" &&
+                                      filterOptions.pctStatus.map((value) => (
+                                        <DropdownMenuCheckboxItem
+                                          key={`${column.key}-${value}`}
+                                          checked={(
+                                            columnFilters[column.key] || []
+                                          ).includes(value)}
+                                          onCheckedChange={(checked) =>
+                                            handleColumnFilterChange(
+                                              column.key,
+                                              value,
+                                              checked
+                                            )
+                                          }
+                                          className={"hover:bg-gray-800"}
+                                        >
+                                          {value}
+                                        </DropdownMenuCheckboxItem>
+                                      ))}
+
+                                    {column.key === "isShowUp" &&
+                                      filterOptions.isShowUp.map((value) => (
+                                        <DropdownMenuCheckboxItem
+                                          key={`${column.key}-${value}`}
+                                          checked={(
+                                            columnFilters[column.key] || []
+                                          ).includes(value)}
+                                          onCheckedChange={(checked) =>
+                                            handleColumnFilterChange(
+                                              column.key,
+                                              value,
+                                              checked
+                                            )
+                                          }
+                                          className={"hover:bg-gray-800"}
+                                        >
+                                          {value}
+                                        </DropdownMenuCheckboxItem>
+                                      ))}
+
+                                    {column.key === "isDeal" &&
+                                      filterOptions.isDeal.map((value) => (
+                                        <DropdownMenuCheckboxItem
+                                          key={`${column.key}-${value}`}
+                                          checked={(
+                                            columnFilters[column.key] || []
+                                          ).includes(value)}
+                                          onCheckedChange={(checked) =>
+                                            handleColumnFilterChange(
+                                              column.key,
+                                              value,
+                                              checked
+                                            )
+                                          }
+                                          className={"hover:bg-gray-800"}
+                                        >
+                                          {value}
+                                        </DropdownMenuCheckboxItem>
+                                      ))}
+
+                                    {column.key === "reasonForAction" &&
+                                      filterOptions.reasonForAction.map(
+                                        (value) => (
+                                          <DropdownMenuCheckboxItem
+                                            key={`${column.key}-${value}`}
+                                            checked={(
+                                              columnFilters[column.key] || []
+                                            ).includes(value)}
+                                            onCheckedChange={(checked) =>
+                                              handleColumnFilterChange(
+                                                column.key,
+                                                value,
+                                                checked
+                                              )
+                                            }
+                                            className={"hover:bg-gray-800"}
+                                          >
+                                            {value}
+                                          </DropdownMenuCheckboxItem>
+                                        )
+                                      )}
+
+                                    {column.key === "isLossDeal" &&
+                                      filterOptions.isLossDeal.map((value) => (
+                                        <DropdownMenuCheckboxItem
+                                          key={`${column.key}-${value}`}
+                                          checked={(
+                                            columnFilters[column.key] || []
+                                          ).includes(value)}
+                                          onCheckedChange={(checked) =>
+                                            handleColumnFilterChange(
+                                              column.key,
+                                              value,
+                                              checked
+                                            )
+                                          }
+                                          className={"hover:bg-gray-800"}
+                                        >
+                                          {value}
+                                        </DropdownMenuCheckboxItem>
+                                      ))}
+
+                                    {column.key === "orderStatus" &&
+                                      filterOptions.orderStatus.map((value) => (
+                                        <DropdownMenuCheckboxItem
+                                          key={`${column.key}-${value}`}
+                                          checked={(
+                                            columnFilters[column.key] || []
+                                          ).includes(value)}
+                                          onCheckedChange={(checked) =>
+                                            handleColumnFilterChange(
+                                              column.key,
+                                              value,
+                                              checked
+                                            )
+                                          }
+                                          className={"hover:bg-gray-800"}
+                                        >
+                                          {value}
+                                        </DropdownMenuCheckboxItem>
+                                      ))}
+
+                                    {/* For columns not covered by the API, fall back to the current page data */}
+                                    {![
+                                      "enquiryType",
+                                      "salesExecutive",
+                                      "location",
+                                      "isPctSheetReceivedWithinTime",
+                                      "pctStatus",
+                                      "isShowUp",
+                                      "isDeal",
+                                      "reasonForAction",
+                                      "isLossDeal",
+                                      "orderStatus",
+                                    ].includes(column.key) &&
+                                      getUniqueColumnValues(column.key).map(
+                                        (value) => (
+                                          <DropdownMenuCheckboxItem
+                                            key={`${column.key}-${value}`}
+                                            checked={(
+                                              columnFilters[column.key] || []
+                                            ).includes(value)}
+                                            onCheckedChange={(checked) =>
+                                              handleColumnFilterChange(
+                                                column.key,
+                                                value,
+                                                checked
+                                              )
+                                            }
+                                            className={"hover:bg-gray-800"}
+                                          >
+                                            {value}
+                                          </DropdownMenuCheckboxItem>
+                                        )
+                                      )}
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              )}
+                            </div>
+                          </TableHead>
+                        ))}
+                        <TableHead className="w-[100px] py-2 px-2 text-xs font-medium">
+                          Actions
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <AnimatePresence>
+                        {loading ? (
+                          <TableRow>
+                            <TableCell
+                              colSpan={columns.length + 1}
+                              className="h-24 text-center"
+                            >
+                              <motion.div
+                                className="flex justify-center"
+                                animate={{
+                                  rotate: 360,
+                                  transition: {
+                                    duration: 1.5,
+                                    repeat: Number.POSITIVE_INFINITY,
+                                    ease: "linear",
+                                  },
+                                }}
+                              >
+                                <div className="h-8 w-8 rounded-full border-2 border-[#2C45AA] border-t-transparent"></div>
+                              </motion.div>
                             </TableCell>
-                          </motion.tr>
-                        ))
-                      )}
-                    </AnimatePresence>
-                  </TableBody>
-                </Table>
-              </div>
+                          </TableRow>
+                        ) : orders.length === 0 ? (
+                          <TableRow>
+                            <TableCell
+                              colSpan={columns.length + 1}
+                              className="h-24 text-center"
+                            >
+                              No orders found
+                            </TableCell>
+                          </TableRow>
+                        ) : (
+                          orders.map((order, index) => (
+                            <motion.tr
+                              key={order._id}
+                              custom={index}
+                              variants={tableRowVariants}
+                              initial="hidden"
+                              animate="visible"
+                              exit="exit"
+                              className="border-b transition-colors dark:hover:bg-gray-800 data-[state=selected]:bg-muted"
+                            >
+                              {columns.map((column) => (
+                                <TableCell
+                                  key={`${order._id}-${column.key}`}
+                                  className="py-1.5 px-2 text-xs"
+                                >
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <div className="cursor-pointer">
+                                        {column.badge ? (
+                                          <AnimatedBadge
+                                            variant={column.badgeVariant(
+                                              order[column.key]
+                                            )}
+                                          >
+                                            {order[column.key]}
+                                          </AnimatedBadge>
+                                        ) : column.format ? (
+                                          column.format(order[column.key])
+                                        ) : (
+                                          order[column.key] || "-"
+                                        )}
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>
+                                        {column.label}:{" "}
+                                        {order[column.key] || "N/A"}
+                                      </p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TableCell>
+                              ))}
+                              <TableCell className="py-1.5 px-2 text-xs">
+                                <div className="flex items-center gap-2">
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="cursor-pointer h-6 w-6 p-0"
+                                        onClick={() =>
+                                          handleEditOrder(order._id)
+                                        }
+                                      >
+                                        <Edit className="text-blue-500 w-3 h-3" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Edit order</p>
+                                    </TooltipContent>
+                                  </Tooltip>
 
-              {/* Pagination */}
-              <div className="flex items-center justify-between px-4 py-4 border-t">
-                <div className="flex items-center gap-2">
-                  <p className="text-sm text-muted-foreground">
-                    Showing <span className="font-medium">{orders.length}</span>{" "}
-                    of <span className="font-medium">{totalOrders}</span> orders
-                  </p>
-                  <Select
-                    value={limit.toString()}
-                    onValueChange={(value) => {
-                      setLimit(Number(value));
-                      setCurrentPage(1);
-                    }}
-                    className="dark:bg-gray-800"
-                  >
-                    <SelectTrigger className="w-[70px]">
-                      <SelectValue placeholder="10" />
-                    </SelectTrigger>
-                    <SelectContent className={"dark:bg-gray-800"}>
-                      <SelectItem
-                        value="5"
-                        className=" dark:bg-gray-800 dark:hover:bg-gray-700"
-                      >
-                        5
-                      </SelectItem>
-                      <SelectItem
-                        value="10"
-                        className="dark:bg-gray-800 dark:hover:bg-gray-700"
-                      >
-                        10
-                      </SelectItem>
-                      <SelectItem
-                        value="20"
-                        className="dark:bg-gray-800 dark:hover:bg-gray-700"
-                      >
-                        20
-                      </SelectItem>
-                      <SelectItem
-                        value="50"
-                        className="dark:bg-gray-800 dark:hover:bg-gray-700"
-                      >
-                        50
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="cursor-pointer h-6 w-6 p-0"
+                                        onClick={() => {
+                                          setOrderToDelete(order._id);
+                                          setIsDeleteDialogOpen(true);
+                                        }}
+                                      >
+                                        <Trash2 className="text-red-500 w-3 h-3" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Delete order</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </div>
+                              </TableCell>
+                            </motion.tr>
+                          ))
+                        )}
+                      </AnimatePresence>
+                    </TableBody>
+                  </Table>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <motion.div
-                    whileHover={{ scale: 1.1 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() =>
-                        setCurrentPage((prev) => Math.max(prev - 1, 1))
-                      }
-                      disabled={currentPage === 1}
-                      className="border-[#2C45AA]/30"
+                {/* Pagination */}
+                <div className="flex items-center justify-between px-4 py-3 border-t">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm text-muted-foreground">
+                      Showing{" "}
+                      <span className="font-medium">{orders.length}</span> of{" "}
+                      <span className="font-medium">{totalOrders}</span> orders
+                    </p>
+                    <Select
+                      value={limit.toString()}
+                      onValueChange={(value) => {
+                        setLimit(Number(value));
+                        setCurrentPage(1);
+                      }}
+                      className="dark:bg-gray-800"
                     >
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                  </motion.div>
-                  <span className="text-sm">
-                    Page {currentPage} of {totalPages || 1}
-                  </span>
-                  <motion.div
-                    whileHover={{ scale: 1.1 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() =>
-                        setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                      }
-                      disabled={currentPage === totalPages || totalPages === 0}
-                      className="border-[#2C45AA]/30"
+                      <SelectTrigger className="w-[70px]">
+                        <SelectValue placeholder="10" />
+                      </SelectTrigger>
+                      <SelectContent className={"dark:bg-gray-800"}>
+                        <SelectItem
+                          value="5"
+                          className=" dark:bg-gray-800 dark:hover:bg-gray-700"
+                        >
+                          5
+                        </SelectItem>
+                        <SelectItem
+                          value="10"
+                          className="dark:bg-gray-800 dark:hover:bg-gray-700"
+                        >
+                          10
+                        </SelectItem>
+                        <SelectItem
+                          value="20"
+                          className="dark:bg-gray-800 dark:hover:bg-gray-700"
+                        >
+                          20
+                        </SelectItem>
+                        <SelectItem
+                          value="50"
+                          className="dark:bg-gray-800 dark:hover:bg-gray-700"
+                        >
+                          50
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <motion.div
+                      whileHover={{ scale: 1.1 }}
+                      transition={{ duration: 0.2 }}
                     >
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </motion.div>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() =>
+                          setCurrentPage((prev) => Math.max(prev - 1, 1))
+                        }
+                        disabled={currentPage === 1}
+                        className="border-[#2C45AA]/30"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                    </motion.div>
+                    <span className="text-sm">
+                      Page {currentPage} of {totalPages || 1}
+                    </span>
+                    <motion.div
+                      whileHover={{ scale: 1.1 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() =>
+                          setCurrentPage((prev) =>
+                            Math.min(prev + 1, totalPages)
+                          )
+                        }
+                        disabled={
+                          currentPage === totalPages || totalPages === 0
+                        }
+                        className="border-[#2C45AA]/30"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </motion.div>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </motion.div>
         </motion.div>
-      </motion.div>
 
-      {/* Delete Order Dialog */}
-      <DeleteOrderDialog
-        open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
-        orderId={orderToDelete}
-        onOrderDeleted={handleOrderDeleted}
-      />
-    </>
+        {/* Delete Order Dialog */}
+        <DeleteOrderDialog
+          open={isDeleteDialogOpen}
+          onOpenChange={setIsDeleteDialogOpen}
+          orderId={orderToDelete}
+          onOrderDeleted={handleOrderDeleted}
+        />
+      </>
+    </TooltipProvider>
   );
 }
 
