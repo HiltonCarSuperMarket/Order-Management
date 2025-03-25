@@ -101,11 +101,10 @@ const Navbar = () => {
             </Button>
           )}
           {!role && (
-            <Link
-              href={"/"}
-              className="text-white  bg-primary  hover:bg-primary hover:text-white/90 font-medium dark:text-white dark:hover:text-white/90"
-            >
-              Logout
+            <Link href={"/"}>
+              <Button className="text-white  bg-primary  hover:bg-primary hover:text-white/90 font-medium dark:text-white dark:hover:text-white/90">
+                Login
+              </Button>
             </Link>
           )}
           <ThemeToggle />
