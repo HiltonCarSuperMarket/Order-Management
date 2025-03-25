@@ -217,6 +217,7 @@ export default function ActiveOrdersDashboard() {
   };
 
   const getBadgeVariantForPCTStatus = (value) => {
+    if (!value) return "default";
     if (value.includes("Ready to Go")) return "success";
     if (value.includes("Mechanical Major")) return "warning";
     if (value.includes("Transit")) return "info";
@@ -386,13 +387,13 @@ export default function ActiveOrdersDashboard() {
       badge: true,
       badgeVariant: getBadgeVariantForPCTStatus,
     },
-    {
-      key: "orderStatus",
-      label: "Order Status",
-      filterable: true,
-      badge: true,
-      badgeVariant: getBadgeVariantForOrderStatus,
-    },
+    // {
+    //   key: "orderStatus",
+    //   label: "Order Status",
+    //   filterable: true,
+    //   badge: true,
+    //   badgeVariant: getBadgeVariantForOrderStatus,
+    // },
   ];
 
   // Reset to first page when search changes
