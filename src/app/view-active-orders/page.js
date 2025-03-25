@@ -38,7 +38,6 @@ import {
   Trash2,
   X,
   Edit,
-  BarChart3,
 } from "lucide-react";
 import Navbar from "@/components/shared/navbar";
 import DeleteOrderDialog from "@/components/shared/delete-order-dialog";
@@ -61,7 +60,8 @@ export default function ActiveOrdersDashboard() {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalOrders, setTotalOrders] = useState(0);
-  const [limit, setLimit] = useState(10);
+  // Change the default limit to show all orders by default
+  const [limit, setLimit] = useState(Number.MAX_SAFE_INTEGER);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 200); // 500ms debounce delay
   const [activeFilters, setActiveFilters] = useState({});
@@ -411,179 +411,185 @@ export default function ActiveOrdersDashboard() {
         {/* Order Highlight Cards */}
         <motion.div
           variants={itemVariants}
-          className="grid gap-4 md:grid-cols-1 lg:grid-cols-1"
+          className="grid gap-4 md:grid-cols-1 lg:grid-cols-2"
         >
           <ActiveOrderCard
             totalOrders={totalOrders}
             title="Active Orders"
             subtitle="Total filtered orders"
           />
-        </motion.div>
+          <motion.div variants={itemVariants}>
+            <Card className="border border-[#2C45AA]/20 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 h-full">
+              <CardHeader className="pb-3">
+                <CardTitle>Order Filters</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col space-y-4">
+                  <div className="flex flex-wrap gap-3 items-center">
+                    <div className="relative flex-1 min-w-[240px]">
+                      <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <motion.div
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ duration: 0.5 }}
+                      >
+                        <Input
+                          type="search"
+                          placeholder="Search orders..."
+                          className="pl-8"
+                          value={search}
+                          onChange={(e) => setSearch(e.target.value)}
+                        />
+                      </motion.div>
+                    </div>
 
-        <motion.div variants={itemVariants}>
-          <Card className="border border-[#2C45AA]/20  bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-            <CardHeader className="pb-3">
-              <CardTitle>Order Filters</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col space-y-4">
-                <div className="flex flex-wrap gap-3 items-center">
-                  <div className="relative flex-1 min-w-[240px]">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <motion.div transition={{ duration: 0.3 }}>
-                      <Input
-                        type="search"
-                        placeholder="Search orders..."
-                        className="pl-8"
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                      />
-                    </motion.div>
+                    {/* Month dropdown with checkboxes */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="flex items-center gap-2"
+                        >
+                          <Filter className="h-4 w-4" />
+                          <span>Months</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        align="start"
+                        className="w-56 max-h-[300px] overflow-y-auto dark:bg-gray-800 "
+                      >
+                        {availableMonths.map((month) => (
+                          <DropdownMenuCheckboxItem
+                            key={month}
+                            checked={months.includes(month)}
+                            onCheckedChange={(checked) =>
+                              handleMonthSelect(month, checked)
+                            }
+                          >
+                            {month}
+                          </DropdownMenuCheckboxItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    {(Object.keys(activeFilters).length > 0 ||
+                      Object.keys(columnFilters).length > 0 ||
+                      months.length > 0) && (
+                      <Button
+                        variant="ghost"
+                        onClick={clearAllFilters}
+                        size="sm"
+                      >
+                        Clear All
+                      </Button>
+                    )}
                   </div>
 
-                  {/* Month dropdown with checkboxes */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="flex items-center gap-2"
-                      >
-                        <Filter className="h-4 w-4" />
-                        <span>Months</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      align="start"
-                      className="w-56 max-h-[300px] overflow-y-auto dark:bg-gray-800 "
-                    >
-                      {availableMonths.map((month) => (
-                        <DropdownMenuCheckboxItem
-                          key={month}
-                          checked={months.includes(month)}
-                          onCheckedChange={(checked) =>
-                            handleMonthSelect(month, checked)
-                          }
-                        >
-                          {month}
-                        </DropdownMenuCheckboxItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-
+                  {/* Active filters display */}
                   {(Object.keys(activeFilters).length > 0 ||
                     Object.keys(columnFilters).length > 0 ||
                     months.length > 0) && (
-                    <Button variant="ghost" onClick={clearAllFilters} size="sm">
-                      Clear All
-                    </Button>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      <AnimatePresence>
+                        {months.map((month) => (
+                          <motion.div
+                            key={`month-${month}`}
+                            variants={filterBadgeVariants}
+                            initial="hidden"
+                            animate="visible"
+                            exit="exit"
+                            layout
+                          >
+                            <Badge
+                              variant="secondary"
+                              className="flex items-center gap-1 dark:bg-gray-800"
+                            >
+                              <span>Month: {month}</span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-4 w-4 p-0"
+                                onClick={() => removeMonth(month)}
+                              >
+                                <X className="h-3 w-3" />
+                              </Button>
+                            </Badge>
+                          </motion.div>
+                        ))}
+
+                        {Object.entries(activeFilters).map(
+                          ([filterName, values]) =>
+                            values.map((value) => (
+                              <motion.div
+                                key={`${filterName}-${value}`}
+                                variants={filterBadgeVariants}
+                                initial="hidden"
+                                animate="visible"
+                                exit="exit"
+                                layout
+                              >
+                                <Badge
+                                  variant="secondary"
+                                  className="flex items-center gap-1 dark:bg-gray-800"
+                                >
+                                  <span className="capitalize">
+                                    {filterName}: {value}
+                                  </span>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-4 w-4 p-0"
+                                    onClick={() =>
+                                      removeFilter(filterName, value)
+                                    }
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </Button>
+                                </Badge>
+                              </motion.div>
+                            ))
+                        )}
+
+                        {Object.entries(columnFilters).map(
+                          ([columnName, values]) =>
+                            values.map((value) => (
+                              <motion.div
+                                key={`col-${columnName}-${value}`}
+                                variants={filterBadgeVariants}
+                                initial="hidden"
+                                animate="visible"
+                                exit="exit"
+                                layout
+                              >
+                                <Badge
+                                  variant="secondary"
+                                  className="flex items-center gap-1 dark:bg-gray-800"
+                                >
+                                  <span className="capitalize">
+                                    {columnName}: {value}
+                                  </span>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-4 w-4 p-0"
+                                    onClick={() =>
+                                      removeColumnFilter(columnName, value)
+                                    }
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </Button>
+                                </Badge>
+                              </motion.div>
+                            ))
+                        )}
+                      </AnimatePresence>
+                    </div>
                   )}
                 </div>
-
-                {/* Active filters display */}
-                {(Object.keys(activeFilters).length > 0 ||
-                  Object.keys(columnFilters).length > 0 ||
-                  months.length > 0) && (
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    <AnimatePresence>
-                      {months.map((month) => (
-                        <motion.div
-                          key={`month-${month}`}
-                          variants={filterBadgeVariants}
-                          initial="hidden"
-                          animate="visible"
-                          exit="exit"
-                          layout
-                        >
-                          <Badge
-                            variant="secondary"
-                            className="flex items-center gap-1 dark:bg-gray-800"
-                          >
-                            <span>Month: {month}</span>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-4 w-4 p-0"
-                              onClick={() => removeMonth(month)}
-                            >
-                              <X className="h-3 w-3" />
-                            </Button>
-                          </Badge>
-                        </motion.div>
-                      ))}
-
-                      {Object.entries(activeFilters).map(
-                        ([filterName, values]) =>
-                          values.map((value) => (
-                            <motion.div
-                              key={`${filterName}-${value}`}
-                              variants={filterBadgeVariants}
-                              initial="hidden"
-                              animate="visible"
-                              exit="exit"
-                              layout
-                            >
-                              <Badge
-                                variant="secondary"
-                                className="flex items-center gap-1 dark:bg-gray-800"
-                              >
-                                <span className="capitalize">
-                                  {filterName}: {value}
-                                </span>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-4 w-4 p-0"
-                                  onClick={() =>
-                                    removeFilter(filterName, value)
-                                  }
-                                >
-                                  <X className="h-3 w-3" />
-                                </Button>
-                              </Badge>
-                            </motion.div>
-                          ))
-                      )}
-
-                      {Object.entries(columnFilters).map(
-                        ([columnName, values]) =>
-                          values.map((value) => (
-                            <motion.div
-                              key={`col-${columnName}-${value}`}
-                              variants={filterBadgeVariants}
-                              initial="hidden"
-                              animate="visible"
-                              exit="exit"
-                              layout
-                            >
-                              <Badge
-                                variant="secondary"
-                                className="flex items-center gap-1 dark:bg-gray-800"
-                              >
-                                <span className="capitalize">
-                                  {columnName}: {value}
-                                </span>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-4 w-4 p-0"
-                                  onClick={() =>
-                                    removeColumnFilter(columnName, value)
-                                  }
-                                >
-                                  <X className="h-3 w-3" />
-                                </Button>
-                              </Badge>
-                            </motion.div>
-                          ))
-                      )}
-                    </AnimatePresence>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </motion.div>
         </motion.div>
-
         <motion.div variants={itemVariants}>
           <Card className="border border-[#2C45AA]/20 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
             <CardContent className="p-0">
@@ -877,6 +883,12 @@ export default function ActiveOrdersDashboard() {
                         className="dark:bg-gray-800 dark:hover:bg-gray-700"
                       >
                         50
+                      </SelectItem>
+                      <SelectItem
+                        value={`${totalOrders}`}
+                        className="dark:bg-gray-800 dark:hover:bg-gray-700"
+                      >
+                        All
                       </SelectItem>
                     </SelectContent>
                   </Select>
