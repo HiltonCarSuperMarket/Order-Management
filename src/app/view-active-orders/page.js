@@ -944,7 +944,7 @@ export default function ActiveOrdersDashboard() {
                   <div className="flex justify-center items-center">
                     <div className="font-medium text-sm text-center">
                       Total Active Orders:{" "}
-                      <span className="text-white font-bold text-lg">
+                      <span className="dark:text-white font-bold text-lg">
                         {totalOrders}
                       </span>
                     </div>
