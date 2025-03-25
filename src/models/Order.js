@@ -22,12 +22,10 @@ const OrderSchema = new Schema({
     required: true,
   },
   closingDate: {
-    type: String, // Changed from Date to String to match sample object
-    required: true,
+    type: String,
   },
   closingTime: {
     type: String,
-    required: true,
   },
   salesExecutive: {
     type: String,
@@ -39,11 +37,9 @@ const OrderSchema = new Schema({
   },
   isPctSheetReceivedWithinTime: {
     type: String,
-    required: true,
   },
   pctStatus: {
     type: String,
-    required: true,
   },
   orderStatus: {
     type: String,

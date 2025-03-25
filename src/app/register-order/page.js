@@ -39,7 +39,7 @@ function SearchableSelect({ options, value, onChange, placeholder }) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between dark:bg-gray-700 dark:text-white dark:border-gray-600"
+          className="w-full justify-between border-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-white dark:border-gray-600"
         >
           {value ? value : placeholder}
         </Button>
@@ -111,7 +111,7 @@ export default function OrderRegistrationPage() {
     registration: "",
     enquiryType: "",
     openingDate: getCurrentUKDateTime().date,
-    closingDate: getCurrentUKDateTime().date,
+    closingDate: null,
     closingTime: getCurrentUKDateTime().time,
     salesExecutive: "",
     customer: "",
@@ -141,6 +141,9 @@ export default function OrderRegistrationPage() {
     reasonForAction: [],
     isLossDeal: [],
   });
+  // Add a loading state to the component
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   useEffect(() => {
     const fetchOptions = async () => {
       try {
@@ -251,15 +254,9 @@ export default function OrderRegistrationPage() {
       { field: "entryTime", label: "Entry time" },
       { field: "enquiryType", label: "Enquiry type" },
       { field: "openingDate", label: "Order date" },
-      { field: "closingDate", label: "Closing date" },
       { field: "closingTime", label: "Closing time" },
       { field: "salesExecutive", label: "Sales executive" },
       { field: "location", label: "Location" },
-      {
-        field: "isPctSheetReceivedWithinTime",
-        label: "PCT sheet received status",
-      },
-      { field: "pctStatus", label: "PCT status" },
     ];
 
     requiredFields.forEach(({ field, label }) => {
@@ -311,9 +308,10 @@ export default function OrderRegistrationPage() {
     return true;
   };
 
-  // Handle form submission
+  // Update the handleSubmit function to include loading state
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true); // Set loading state to true when submitting
 
     if (validateForm()) {
       // Format dates for MongoDB storage
@@ -321,7 +319,9 @@ export default function OrderRegistrationPage() {
         ...formData,
         entryDate: new Date(formData.entryDate),
         openingDate: new Date(formData.openingDate),
-        closingDate: new Date(formData.closingDate),
+        closingDate: formData.closingDate
+          ? new Date(formData.closingDate)
+          : null,
       };
 
       try {
@@ -340,7 +340,7 @@ export default function OrderRegistrationPage() {
           registration: "",
           enquiryType: "",
           openingDate: getCurrentUKDateTime().date,
-          closingDate: getCurrentUKDateTime().date,
+          closingDate: null,
           closingTime: getCurrentUKDateTime().time,
           salesExecutive: "",
           customer: "",
@@ -364,45 +364,54 @@ export default function OrderRegistrationPage() {
           "Error registering order:",
           error.response?.data || error.message
         );
+      } finally {
+        setIsSubmitting(false); // Reset loading state regardless of outcome
       }
+    } else {
+      setIsSubmitting(false); // Reset loading state if validation fails
     }
   };
 
+  // Update the return statement to include enhanced light theme styling and loading button
   return (
-    <div>
+    <div className="text-sm">
       <Navbar />
-      <div
-        className={`min-h-screen p-4 md:p-8 
-         `}
-      >
+      <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-6xl mt-6 mx-auto">
           <div className="text-center py-6">
-            <h1 className="text-2xl  md:text-3xl font-bold dark:text-white">
+            <h1 className="text-2xl md:text-3xl font-bold text-indigo-700 dark:text-white">
               Order Registration
             </h1>
+            <p className="text-gray-600 dark:text-gray-300 mt-2">
+              Complete the form below to register a new order
+            </p>
           </div>
 
           <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Entry Date */}
-              <Card className="dark:bg-gray-800">
-                <CardHeader>
-                  <CardTitle className="text-lg dark:text-white">
+              <Card className="dark:bg-gray-800 pt-0 bg-white border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden rounded-lg">
+                <div className="h-1 bg-indigo-500 dark:bg-gray-700"></div>
+                <CardHeader className="bg-white dark:bg-gray-800">
+                  <CardTitle className="text-lg text-indigo-700 dark:text-white">
                     Entry Details
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="entryDate" className="dark:text-gray-300">
+                    <Label
+                      htmlFor="entryDate"
+                      className="text-gray-700 dark:text-gray-300 font-medium"
+                    >
                       Entry Date*
                     </Label>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
                           variant="outline"
-                          className="w-full justify-start text-left font-normal dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                          className="w-full justify-start text-left font-normal border-gray-300 bg-white hover:bg-gray-50 hover:border-indigo-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
                         >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          <CalendarIcon className="mr-2 h-4 w-4 text-indigo-500 dark:text-gray-400" />
                           {formData.entryDate
                             ? format(formData.entryDate, "dd/MM/yyyy")
                             : "Select date"}
@@ -422,7 +431,10 @@ export default function OrderRegistrationPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="entryTime" className="dark:text-gray-300">
+                    <Label
+                      htmlFor="entryTime"
+                      className="text-gray-700 dark:text-gray-300 font-medium"
+                    >
                       Entry Time*
                     </Label>
                     <div className="flex items-center">
@@ -433,16 +445,16 @@ export default function OrderRegistrationPage() {
                         onChange={(e) =>
                           handleChange("entryTime", e.target.value)
                         }
-                        className="dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                        className="border-gray-300 bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
                       />
-                      <Clock className="ml-2 h-4 w-4 text-gray-500 dark:text-gray-400" />
+                      <Clock className="ml-2 h-4 w-4 text-indigo-500 dark:text-gray-400" />
                     </div>
                   </div>
 
                   <div className="space-y-2">
                     <Label
                       htmlFor="registration"
-                      className="dark:text-gray-300"
+                      className="text-gray-700 dark:text-gray-300 font-medium"
                     >
                       Registration*
                     </Label>
@@ -456,12 +468,15 @@ export default function OrderRegistrationPage() {
                         )
                       }
                       placeholder="ABC123"
-                      className="dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                      className="border-gray-300 bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="enquiryType" className="dark:text-gray-300">
+                    <Label
+                      htmlFor="enquiryType"
+                      className="text-gray-700 dark:text-gray-300 font-medium"
+                    >
                       Enquiry Type*
                     </Label>
                     <SearchableSelect
@@ -475,24 +490,28 @@ export default function OrderRegistrationPage() {
               </Card>
 
               {/* Order Details */}
-              <Card className="dark:bg-gray-800">
-                <CardHeader>
-                  <CardTitle className="text-lg dark:text-white">
+              <Card className="dark:bg-gray-800 pt-0 bg-white border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden rounded-lg">
+                <div className="h-1 bg-purple-500 dark:bg-gray-700"></div>
+                <CardHeader className="bg-white dark:bg-gray-800">
+                  <CardTitle className="text-lg text-purple-700 dark:text-white">
                     Order Details
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="openingDate" className="dark:text-gray-300">
+                    <Label
+                      htmlFor="openingDate"
+                      className="text-gray-700 dark:text-gray-300 font-medium"
+                    >
                       Order Date*
                     </Label>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
                           variant="outline"
-                          className="w-full justify-start text-left font-normal dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                          className="w-full justify-start text-left font-normal border-gray-300 bg-white hover:bg-gray-50 hover:border-purple-300 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
                         >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          <CalendarIcon className="mr-2 h-4 w-4 text-purple-500 dark:text-gray-400" />
                           {formData.openingDate
                             ? format(formData.openingDate, "dd/MM/yyyy")
                             : "Select date"}
@@ -512,16 +531,19 @@ export default function OrderRegistrationPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="closingDate" className="dark:text-gray-300">
-                      Closing Date*
+                    <Label
+                      htmlFor="closingDate"
+                      className="text-gray-700 dark:text-gray-300 font-medium"
+                    >
+                      Closing Date (Optional)
                     </Label>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
                           variant="outline"
-                          className="w-full justify-start text-left font-normal dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                          className="w-full justify-start text-left font-normal border-gray-300 bg-white hover:bg-gray-50 hover:border-purple-300 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
                         >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          <CalendarIcon className="mr-2 h-4 w-4 text-purple-500 dark:text-gray-400" />
                           {formData.closingDate
                             ? format(formData.closingDate, "dd/MM/yyyy")
                             : "Select date"}
@@ -541,7 +563,10 @@ export default function OrderRegistrationPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="closingTime" className="dark:text-gray-300">
+                    <Label
+                      htmlFor="closingTime"
+                      className="text-gray-700 dark:text-gray-300 font-medium"
+                    >
                       Closing Time*
                     </Label>
                     <div className="flex items-center">
@@ -552,16 +577,16 @@ export default function OrderRegistrationPage() {
                         onChange={(e) =>
                           handleChange("closingTime", e.target.value)
                         }
-                        className="dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                        className="border-gray-300 bg-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
                       />
-                      <Clock className="ml-2 h-4 w-4 text-gray-500 dark:text-gray-400" />
+                      <Clock className="ml-2 h-4 w-4 text-purple-500 dark:text-gray-400" />
                     </div>
                   </div>
 
                   <div className="space-y-2">
                     <Label
                       htmlFor="salesExecutive"
-                      className="dark:text-gray-300"
+                      className="text-gray-700 dark:text-gray-300 font-medium"
                     >
                       Sales Executive*
                     </Label>
@@ -576,7 +601,10 @@ export default function OrderRegistrationPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="location" className="dark:text-gray-300">
+                    <Label
+                      htmlFor="location"
+                      className="text-gray-700 dark:text-gray-300 font-medium"
+                    >
                       Location*
                     </Label>
                     <SearchableSelect
@@ -590,15 +618,19 @@ export default function OrderRegistrationPage() {
               </Card>
 
               {/* Customer Details */}
-              <Card className="dark:bg-gray-800">
-                <CardHeader>
-                  <CardTitle className="text-lg dark:text-white">
+              <Card className="dark:bg-gray-800 pt-0 bg-white border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden rounded-lg">
+                <div className="h-1 bg-teal-500 dark:bg-gray-700"></div>
+                <CardHeader className="bg-white dark:bg-gray-800">
+                  <CardTitle className="text-lg text-teal-700 dark:text-white">
                     Customer Information
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="customer" className="dark:text-gray-300">
+                    <Label
+                      htmlFor="customer"
+                      className="text-gray-700 dark:text-gray-300 font-medium"
+                    >
                       Customer*
                     </Label>
                     <Input
@@ -606,16 +638,17 @@ export default function OrderRegistrationPage() {
                       value={formData.customer}
                       onChange={(e) => handleChange("customer", e.target.value)}
                       placeholder="Customer name"
-                      className="dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                      className="border-gray-300 bg-white focus:border-teal-500 focus:ring-1 focus:ring-teal-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
                     />
                   </div>
                 </CardContent>
               </Card>
 
               {/* PCT Details */}
-              <Card className="dark:bg-gray-800">
-                <CardHeader>
-                  <CardTitle className="text-lg dark:text-white">
+              <Card className="dark:bg-gray-800 pt-0 bg-white border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden rounded-lg">
+                <div className="h-1 bg-amber-500 dark:bg-gray-700"></div>
+                <CardHeader className="bg-white dark:bg-gray-800">
+                  <CardTitle className="text-lg text-amber-700 dark:text-white">
                     PCT Details
                   </CardTitle>
                 </CardHeader>
@@ -623,9 +656,9 @@ export default function OrderRegistrationPage() {
                   <div className="space-y-2">
                     <Label
                       htmlFor="isPctSheetReceivedWithinTime"
-                      className="dark:text-gray-300"
+                      className="text-gray-700 dark:text-gray-300 font-medium"
                     >
-                      PCT Sheet Received Within Time*
+                      PCT Sheet Received Within Time (Optional)
                     </Label>
                     <SearchableSelect
                       options={options.isPctSheetReceivedWithinTime}
@@ -638,8 +671,11 @@ export default function OrderRegistrationPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="pctStatus" className="dark:text-gray-300">
-                      PCT Status*
+                    <Label
+                      htmlFor="pctStatus"
+                      className="text-gray-700 dark:text-gray-300 font-medium"
+                    >
+                      PCT Status (Optional)
                     </Label>
                     <SearchableSelect
                       options={options.pctStatus}
@@ -652,22 +688,26 @@ export default function OrderRegistrationPage() {
               </Card>
 
               {/* Order Status */}
-              <Card className="dark:bg-gray-800">
-                <CardHeader>
-                  <CardTitle className="text-lg dark:text-white">
+              <Card className="dark:bg-gray-800 pt-0 bg-white border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden rounded-lg">
+                <div className="h-1 bg-rose-500 dark:bg-gray-700"></div>
+                <CardHeader className="bg-white dark:bg-gray-800">
+                  <CardTitle className="text-lg text-rose-700 dark:text-white">
                     Order Status
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="orderStatus" className="dark:text-gray-300">
+                    <Label
+                      htmlFor="orderStatus"
+                      className="text-gray-700 dark:text-gray-300 font-medium"
+                    >
                       Order Status*
                     </Label>
                     <Input
                       id="orderStatus"
                       value="Active"
                       disabled
-                      className="dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                      className="border-gray-300 bg-gray-50 text-gray-600 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
                     />
                   </div>
                 </CardContent>
@@ -678,9 +718,36 @@ export default function OrderRegistrationPage() {
               <Button
                 type="submit"
                 size="lg"
-                className="bg-primary hover:bg-primary/90 dark:bg-primary dark:hover:bg-primary/90"
+                disabled={isSubmitting}
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium px-8 py-2 rounded-md shadow-md hover:shadow-lg transition-all duration-300 dark:bg-primary dark:hover:bg-primary/90"
               >
-                Register Order
+                {isSubmitting ? (
+                  <>
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Processing...
+                  </>
+                ) : (
+                  "Register Order"
+                )}
               </Button>
             </div>
           </form>

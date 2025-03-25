@@ -514,13 +514,13 @@ export default function OrdersDashboard() {
       badge: true,
       badgeVariant: getBadgeVariantForLossDeal,
     },
-    {
-      key: "orderStatus",
-      label: "Order Status",
-      filterable: true,
-      badge: true,
-      badgeVariant: getBadgeVariantForOrderStatus,
-    },
+    // {
+    //   key: "orderStatus",
+    //   label: "Order Status",
+    //   filterable: true,
+    //   badge: true,
+    //   badgeVariant: getBadgeVariantForOrderStatus,
+    // },
   ];
 
   return (
