@@ -560,7 +560,7 @@ export default function ActiveOrdersDashboard() {
                         {columns.map((column) => (
                           <TableHead
                             key={column.key}
-                            className="relative py-2 px-2 text-xs"
+                            className="relative py-1 px-1 text-xs"
                           >
                             <div className="flex items-center gap-1">
                               {column.label}
@@ -710,7 +710,7 @@ export default function ActiveOrdersDashboard() {
                             </div>
                           </TableHead>
                         ))}
-                        <TableHead className="w-[100px] py-2 px-2 text-xs">
+                        <TableHead className="w-[100px] py-1 px-1 text-xs">
                           Actions
                         </TableHead>
                       </TableRow>
@@ -941,31 +941,13 @@ export default function ActiveOrdersDashboard() {
 
                 {/* Total Active Orders Summary */}
                 <div className="px-4 py-3 border-t bg-gray-50 dark:bg-gray-800">
-                  <div className="flex justify-between items-center">
-                    <div className="font-medium text-sm">
+                  <div className="flex justify-center items-center">
+                    <div className="font-medium text-sm text-center">
                       Total Active Orders:{" "}
-                      <span className="text-primary">{totalOrders}</span>
+                      <span className="text-white font-bold text-lg">
+                        {totalOrders}
+                      </span>
                     </div>
-                    {totalSoldOrders > 0 || totalCancelledOrders > 0 ? (
-                      <div className="flex gap-4 text-sm">
-                        {totalSoldOrders > 0 && (
-                          <span>
-                            Sold:{" "}
-                            <span className="font-medium text-green-600">
-                              {totalSoldOrders}
-                            </span>
-                          </span>
-                        )}
-                        {totalCancelledOrders > 0 && (
-                          <span>
-                            Cancelled:{" "}
-                            <span className="font-medium text-red-600">
-                              {totalCancelledOrders}
-                            </span>
-                          </span>
-                        )}
-                      </div>
-                    ) : null}
                   </div>
                 </div>
               </CardContent>

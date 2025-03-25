@@ -832,7 +832,7 @@ export default function OrdersDashboard() {
                         {columns.map((column) => (
                           <TableHead
                             key={column.key}
-                            className="relative py-2 px-2 text-xs font-medium"
+                            className="relative py-1 px-1 text-xs font-medium"
                           >
                             <div className="flex items-center gap-1">
                               {column.label}
@@ -1098,7 +1098,7 @@ export default function OrdersDashboard() {
                             </div>
                           </TableHead>
                         ))}
-                        <TableHead className="w-[100px] py-2 px-2 text-xs font-medium">
+                        <TableHead className="w-[100px] py-1 px-1 text-xs font-medium">
                           Actions
                         </TableHead>
                       </TableRow>
