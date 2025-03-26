@@ -66,7 +66,7 @@ export default function LandingPage() {
       <Navbar />
       <section
         id="dashboard"
-        className="pt-24 lg:pt-10 lg:h-screen flex items-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800"
+        className="pt-24  pb-6 lg:h-screen flex items-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800"
       >
         <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center">
           <motion.div
@@ -80,19 +80,19 @@ export default function LandingPage() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
             >
-              <Badge className="bg-[#2C45AA]/10 text-[#2C45AA] dark:bg-[#4e6cde]/20 dark:text-[#4e6cde] px-3 py-1 text-base mb-4">
+              <Badge className="bg-[#2C45AA]/10 text-[#2C45AA] dark:bg-[#4e6cde]/20 dark:text-[#4e6cde] px-3 py-1 text-lg mb-4">
                 Order Management System
               </Badge>
             </motion.div>
             <motion.h1
-              className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight dark:text-white"
+              className="text-4xl   font-bold text-gray-900 leading-tight dark:text-white"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.2 }}
             >
-              Manage Customer Experience with{" "}
-              <span className="text-[#2C45AA] dark:text-[#4e6cde]">
-                Excellence
+              We, At Hilton Car SuperMarket,{" "}
+              <span className="italic">
+                "Creating An Effective Car-Buying Experience For Our Customers".
               </span>
             </motion.h1>
             <motion.p
@@ -101,9 +101,8 @@ export default function LandingPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.3 }}
             >
-              Hilton Car SuperMarket offers a comprehensive order management
-              system to streamline your operations and enhance customer
-              satisfaction.
+              Hilton Car SuperMarket offers a comprehensive Order Management
+              System to streamline the business operations.
             </motion.p>
             <motion.div
               className="flex flex-col sm:flex-row gap-4"
@@ -157,7 +156,7 @@ export default function LandingPage() {
               Key Features
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto dark:text-gray-300">
-              Our order management system provides powerful tools to streamline
+              HCS Order Management System provides powerful tools to streamline
               your operations.
             </p>
           </motion.div>
@@ -174,7 +173,7 @@ export default function LandingPage() {
                 icon: (
                   <ClipboardList className="h-10 w-10 text-[#2C45AA] dark:text-[#4e6cde]" />
                 ),
-                title: "Order Tracking",
+                title: "HCS Order Tracking",
                 description:
                   "Real-time tracking of all orders from placement to delivery.",
               },
@@ -182,7 +181,7 @@ export default function LandingPage() {
                 icon: (
                   <BarChart3 className="h-10 w-10 text-[#2C45AA] dark:text-[#4e6cde]" />
                 ),
-                title: "Analytics Dashboard",
+                title: "HCS Analytics Dashboard",
                 description:
                   "Comprehensive analytics to monitor performance and identify trends.",
               },
@@ -190,7 +189,7 @@ export default function LandingPage() {
                 icon: (
                   <CheckCircle className="h-10 w-10 text-[#2C45AA] dark:text-[#4e6cde]" />
                 ),
-                title: "Quality Assurance",
+                title: "HCS Quality Assurance",
                 description:
                   "Built-in quality checks to ensure customer satisfaction.",
               },
@@ -198,9 +197,9 @@ export default function LandingPage() {
                 icon: (
                   <Users className="h-10 w-10 text-[#2C45AA] dark:text-[#4e6cde]" />
                 ),
-                title: "Customer Management",
+                title: "HCS Customer Management",
                 description:
-                  "Detailed customer profiles and purchase history for personalized service.",
+                  "Detailed customer profiles and purchase history for personalized services.",
               },
             ].map((feature, index) => (
               <motion.div
@@ -233,7 +232,7 @@ export default function LandingPage() {
             className="text-center mb-16"
           >
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 dark:text-white">
-              Order Management Process
+              HCS Order Management Process
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto dark:text-gray-300">
               Our streamlined process ensures efficient order handling from
@@ -251,25 +250,25 @@ export default function LandingPage() {
             {[
               {
                 step: "01",
-                title: "Order Creation",
+                title: "HCS Order Creation",
                 description:
                   "Create new orders with comprehensive vehicle and customer details.",
               },
               {
                 step: "02",
-                title: "Processing",
+                title: "HCS Processing",
                 description:
                   "Track order processing, including payment verification and documentation.",
               },
               {
                 step: "03",
-                title: "Vehicle Preparation",
+                title: "HCS Vehicle Preparation",
                 description:
                   "Monitor vehicle preparation, inspections, and customizations.",
               },
               {
                 step: "04",
-                title: "Delivery",
+                title: "HCS Delivery",
                 description:
                   "Schedule and track deliveries with real-time updates for customers.",
               },
@@ -303,11 +302,11 @@ export default function LandingPage() {
             className="text-center"
           >
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Ready to Streamline Your Order Management?
+              Ready to Streamline Order Management System?
             </h2>
             <p className="text-lg text-blue-100 max-w-2xl mx-auto mb-8">
               Join Hilton Car SuperMarket today and experience our exceptional
-              order management system.
+              Order Management System.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Link href="/view-orders">

@@ -492,9 +492,9 @@ export default function OrderRegistrationPage() {
 
               {/* Order Details */}
               <Card className="dark:bg-gray-800/80 dark:backdrop-blur-sm pt-0 bg-white border-gray-200 dark:border-gray-700 shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden rounded-lg">
-                <div className="h-1 bg-indigo-500 dark:bg-indigo-400"></div>
+                <div className="h-1 bg-rose-500 dark:bg-rose-400"></div>
                 <CardHeader className="bg-white dark:bg-gray-800/0">
-                  <CardTitle className="text-lg text-indigo-700 dark:text-indigo-400">
+                  <CardTitle className="text-lg text-rose-700 dark:text-rose-400">
                     Order Details
                   </CardTitle>
                 </CardHeader>
@@ -512,7 +512,7 @@ export default function OrderRegistrationPage() {
                           variant="outline"
                           className="w-full justify-start text-left font-normal border-gray-300 bg-white hover:bg-gray-50 hover:border-purple-300 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:border-purple-400 dark:focus:border-purple-400 dark:focus:ring-purple-400 transition-colors"
                         >
-                          <CalendarIcon className="mr-2 h-4 w-4 text-indigo-500 dark:text-indigo-400" />
+                          <CalendarIcon className="mr-2 h-4 w-4 text-rose-500 dark:text-rose-400" />
                           {formData.openingDate
                             ? format(formData.openingDate, "dd/MM/yyyy")
                             : "Select date"}
@@ -545,7 +545,7 @@ export default function OrderRegistrationPage() {
                           variant="outline"
                           className="w-full justify-start text-left font-normal border-gray-300 bg-white hover:bg-gray-50 hover:border-purple-300 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:border-purple-400 dark:focus:border-purple-400 dark:focus:ring-purple-400 transition-colors"
                         >
-                          <CalendarIcon className="mr-2 h-4 w-4 text-indigo-500 dark:text-indigo-400" />
+                          <CalendarIcon className="mr-2 h-4 w-4 text-rose-500 dark:text-rose-400" />
                           {formData.closingDate
                             ? format(formData.closingDate, "dd/MM/yyyy")
                             : "Select date"}
@@ -582,7 +582,7 @@ export default function OrderRegistrationPage() {
                         }
                         className="border-gray-300 bg-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:focus:border-purple-400 dark:focus:ring-purple-400 transition-colors"
                       />
-                      <Clock className="ml-2 h-4 w-4 text-indigo-500 dark:text-indigo-400" />
+                      <Clock className="ml-2 h-4 w-4 text-rose-500 dark:text-rose-400" />
                     </div>
                   </div>
 
