@@ -369,7 +369,7 @@ export default function ActiveOrdersDashboard() {
     { key: "registration", label: "Registration" },
     { key: "enquiryType", label: "Enquiry Type", filterable: true },
     { key: "openingDate", label: "Opening Date", format: formatDate },
-    { key: "closingDate", label: "Closing Date", format: formatDate },
+    { key: "closingDate", label: "Collection Date", format: formatDate },
     { key: "closingTime", label: "Closing Time" },
     { key: "salesExecutive", label: "Sales Executive", filterable: true },
     { key: "customer", label: "Customer" },
@@ -412,7 +412,7 @@ export default function ActiveOrdersDashboard() {
           variants={containerVariants}
         >
           <h2 className="text-center text-2xl md:text-3xl font-bold pt-6 sm:pt-10">
-            Active Orders Dashboard
+            HCS Active Orders Dashboard
           </h2>
 
           {/* Search Bar */}

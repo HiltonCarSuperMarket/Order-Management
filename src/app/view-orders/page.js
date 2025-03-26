@@ -473,7 +473,7 @@ export default function OrdersDashboard() {
     { key: "registration", label: "Registration" },
     { key: "enquiryType", label: "Enquiry Type", filterable: true },
     { key: "openingDate", label: "Opening Date", format: formatDate },
-    { key: "closingDate", label: "Closing Date", format: formatDate },
+    { key: "closingDate", label: "Cancellation/Sale Date", format: formatDate },
     { key: "closingTime", label: "Closing Time" },
     { key: "salesExecutive", label: "Sales Executive", filterable: true },
     { key: "customer", label: "Customer" },
@@ -535,7 +535,7 @@ export default function OrdersDashboard() {
         >
           <h2 className="text-center text-3xl font-bold pt-6 sm:pt-8">
             {" "}
-            Inactive Orders Dashboard
+            HCS Inactive Orders Dashboard
           </h2>
 
           {/* Order Highlight Cards */}

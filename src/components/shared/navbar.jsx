@@ -57,7 +57,7 @@ const Navbar = () => {
         <Link href="/dashboard" className="flex items-center space-x-2">
           <Car className="h-8 w-8 text-[#2C45AA] dark:text-[#4e6cde]" />
           <span className="font-bold text-xl text-[#2C45AA] dark:text-[#4e6cde] ">
-            Hilton Car <span> SuperMarket </span>
+            Hilton Car <span> SuperMarket (HCS) </span>
           </span>
         </Link>
 

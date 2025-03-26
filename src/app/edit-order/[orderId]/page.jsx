@@ -729,7 +729,7 @@ export default function EditOrderPage() {
         <div className="max-w-6xl mt-6 mx-auto">
           <div className="text-center py-6">
             <h1 className="text-2xl md:text-3xl font-bold text-indigo-700 dark:text-white">
-              Edit Order
+              HCS Edit Order
             </h1>
             <p className="text-gray-600 dark:text-gray-300 mt-2">
               Update order details and status
