@@ -80,7 +80,7 @@ export default function LandingPage() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
             >
-              <Badge className="bg-[#2C45AA]/10 text-[#2C45AA] dark:bg-[#4e6cde]/20 dark:text-[#4e6cde] px-3 py-1 text-lg mb-4">
+              <Badge className="bg-[#2C45AA]/10 text-[#2C45AA] dark:bg-[#4e6cde]/20 dark:text-white px-3 py-1 text-4xl mb-4">
                 Order Management System
               </Badge>
             </motion.div>
@@ -136,7 +136,7 @@ export default function LandingPage() {
               images={carouselImages}
               interval={5000}
               overlayTitle="Streamlined Order Management"
-              overlayDescription="Track, manage, and optimize your vehicle orders"
+              overlayDescription="Track, manage, and optimize vehicle orders"
             />
           </motion.div>
         </div>
