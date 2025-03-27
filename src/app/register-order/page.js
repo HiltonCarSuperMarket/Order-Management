@@ -537,7 +537,7 @@ export default function OrderRegistrationPage() {
                       htmlFor="closingDate"
                       className="text-gray-700 dark:text-gray-300 font-medium"
                     >
-                      Closing Date
+                      Collection Date
                     </Label>
                     <Popover>
                       <PopoverTrigger asChild>
@@ -570,7 +570,7 @@ export default function OrderRegistrationPage() {
                       htmlFor="closingTime"
                       className="text-gray-700 dark:text-gray-300 font-medium"
                     >
-                      Closing Time*
+                      Collection Time*
                     </Label>
                     <div className="flex items-center">
                       <Input
