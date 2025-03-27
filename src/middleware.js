@@ -4,7 +4,15 @@ import { jwtVerify } from "jose";
 export async function middleware(request) {
   const token = request.cookies.get("token")?.value;
 
-  const protectedPaths = ["/create-user", "/dashboard"];
+  const protectedPaths = [
+    "/create-user",
+    "/dashboard",
+    "/register-order",
+    "/view-active-orders",
+    "/view-orders",
+    "/edit-order/:path*",
+    "/edit-order",
+  ];
   const isProtectedPath = protectedPaths.some((path) =>
     request.nextUrl.pathname.startsWith(path)
   );
@@ -46,5 +54,13 @@ export async function middleware(request) {
 }
 
 export const config = {
-  matcher: ["/create-user", "/dashboard"],
+  matcher: [
+    "/create-user",
+    "/dashboard",
+    "/register-order",
+    "/view-active-orders",
+    "/view-orders",
+    "/edit-order",
+    "/edit-order/:path*",
+  ],
 };

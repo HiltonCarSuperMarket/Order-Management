@@ -41,20 +41,20 @@ function SearchableSelect({ options, value, onChange, placeholder, disabled }) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between border-gray-300 bg-white hover:bg-gray-50 hover:border-indigo-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+          className="w-full justify-between border-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:border-gray-500 transition-colors"
           disabled={disabled}
         >
           {value ? value : placeholder}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full p-0 shadow-lg border border-gray-200 dark:border-gray-700 dark:bg-gray-800">
-        <Command className="bg-white dark:bg-gray-800 rounded-md">
+      <PopoverContent className="w-full p-0 dark:bg-gray-800 border dark:border-gray-700">
+        <Command className="dark:bg-gray-800">
           <CommandInput
             placeholder="Search..."
-            className="h-9 border-0 focus:ring-0 bg-transparent text-gray-700 dark:bg-gray-700 dark:text-white pl-3"
+            className="h-9 dark:bg-gray-700 dark:text-gray-200 dark:placeholder:text-gray-400 pl-3"
           />
           <CommandList>
-            <CommandEmpty className="py-2 text-center text-sm text-gray-500 dark:text-gray-400">
+            <CommandEmpty className="py-2 text-center text-sm dark:text-gray-400">
               No results found.
             </CommandEmpty>
             <CommandGroup className="max-h-[200px] overflow-auto">
@@ -65,7 +65,7 @@ function SearchableSelect({ options, value, onChange, placeholder, disabled }) {
                     onChange(option);
                     setOpen(false);
                   }}
-                  className="cursor-pointer text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 dark:text-white dark:hover:bg-gray-700"
+                  className="cursor-pointer dark:hover:bg-gray-700 dark:text-gray-200 dark:aria-selected:bg-gray-600"
                 >
                   {option}
                 </CommandItem>
@@ -723,12 +723,12 @@ export default function EditOrderPage() {
   const showInactiveFields = formData.orderStatus === "Inactive";
 
   return (
-    <div className="text-sm">
+    <div className="">
       <Navbar />
-      <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+      <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 dark:text-gray-200 transition-colors duration-300">
         <div className="max-w-6xl mt-6 mx-auto">
           <div className="text-center py-6">
-            <h1 className="text-2xl md:text-3xl font-bold text-indigo-700 dark:text-white">
+            <h1 className="text-2xl md:text-3xl font-bold text-indigo-700 dark:text-indigo-400">
               HCS Edit Order
             </h1>
             <p className="text-gray-600 dark:text-gray-300 mt-2">
@@ -739,10 +739,10 @@ export default function EditOrderPage() {
           <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Entry Date */}
-              <Card className="dark:bg-gray-800 pt-0 bg-white border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden rounded-lg">
-                <div className="h-1 bg-indigo-500 dark:bg-gray-700"></div>
-                <CardHeader className="bg-white dark:bg-gray-800">
-                  <CardTitle className="text-lg text-indigo-700 dark:text-white">
+              <Card className="dark:bg-gray-800/80 dark:backdrop-blur-sm pt-0 bg-white border-gray-200 dark:border-gray-700 shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden rounded-lg">
+                <div className="h-1 bg-indigo-500 dark:bg-indigo-400"></div>
+                <CardHeader className="bg-white dark:bg-gray-800/0">
+                  <CardTitle className="text-lg text-indigo-700 dark:text-indigo-400">
                     Entry Details
                   </CardTitle>
                 </CardHeader>
@@ -758,15 +758,15 @@ export default function EditOrderPage() {
                       <PopoverTrigger asChild>
                         <Button
                           variant="outline"
-                          className="w-full justify-start text-left font-normal border-gray-300 bg-white hover:bg-gray-50 hover:border-indigo-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                          className="w-full justify-start text-left font-normal border-gray-300 bg-white hover:bg-gray-50 hover:border-indigo-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:border-indigo-400 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 transition-colors"
                         >
-                          <CalendarIcon className="mr-2 h-4 w-4 text-indigo-500 dark:text-gray-400" />
+                          <CalendarIcon className="mr-2 h-4 w-4 text-indigo-500 dark:text-indigo-400" />
                           {formData.entryDate
                             ? format(formData.entryDate, "dd/MM/yyyy")
                             : "Select date"}
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 dark:bg-gray-800">
+                      <PopoverContent className="w-auto p-0 dark:bg-gray-800 border dark:border-gray-700">
                         <Calendar
                           mode="single"
                           selected={formData.entryDate}
@@ -774,12 +774,10 @@ export default function EditOrderPage() {
                             handleDateChange("entryDate", date)
                           }
                           initialFocus
+                          className="dark:bg-gray-800 dark:text-gray-200"
                         />
                       </PopoverContent>
                     </Popover>
-                    {errors.entryDate && (
-                      <p className="text-sm text-red-500">{errors.entryDate}</p>
-                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -797,13 +795,10 @@ export default function EditOrderPage() {
                         onChange={(e) =>
                           handleChange("entryTime", e.target.value)
                         }
-                        className="border-gray-300 bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                        className="border-gray-300 bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 transition-colors"
                       />
-                      <Clock className="ml-2 h-4 w-4 text-indigo-500 dark:text-gray-400" />
+                      <Clock className="ml-2 h-4 w-4 text-indigo-500 dark:text-indigo-400" />
                     </div>
-                    {errors.entryTime && (
-                      <p className="text-sm text-red-500">{errors.entryTime}</p>
-                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -823,13 +818,8 @@ export default function EditOrderPage() {
                         )
                       }
                       placeholder="ABC123"
-                      className="border-gray-300 bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                      className="border-gray-300 bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:placeholder:text-gray-400 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 transition-colors"
                     />
-                    {errors.registration && (
-                      <p className="text-sm text-red-500">
-                        {errors.registration}
-                      </p>
-                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -845,20 +835,15 @@ export default function EditOrderPage() {
                       onChange={(value) => handleChange("enquiryType", value)}
                       placeholder="Select enquiry type"
                     />
-                    {errors.enquiryType && (
-                      <p className="text-sm text-red-500">
-                        {errors.enquiryType}
-                      </p>
-                    )}
                   </div>
                 </CardContent>
               </Card>
 
               {/* Order Details */}
-              <Card className="dark:bg-gray-800 pt-0 bg-white border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden rounded-lg">
-                <div className="h-1 bg-purple-500 dark:bg-gray-700"></div>
-                <CardHeader className="bg-white dark:bg-gray-800">
-                  <CardTitle className="text-lg text-purple-700 dark:text-white">
+              <Card className="dark:bg-gray-800/80 dark:backdrop-blur-sm pt-0 bg-white border-gray-200 dark:border-gray-700 shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden rounded-lg">
+                <div className="h-1 bg-rose-500 dark:bg-rose-400"></div>
+                <CardHeader className="bg-white dark:bg-gray-800/0">
+                  <CardTitle className="text-lg text-rose-700 dark:text-rose-400">
                     Order Details
                   </CardTitle>
                 </CardHeader>
@@ -874,15 +859,15 @@ export default function EditOrderPage() {
                       <PopoverTrigger asChild>
                         <Button
                           variant="outline"
-                          className="w-full justify-start text-left font-normal border-gray-300 bg-white hover:bg-gray-50 hover:border-purple-300 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                          className="w-full justify-start text-left font-normal border-gray-300 bg-white hover:bg-gray-50 hover:border-purple-300 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:border-purple-400 dark:focus:border-purple-400 dark:focus:ring-purple-400 transition-colors"
                         >
-                          <CalendarIcon className="mr-2 h-4 w-4 text-purple-500 dark:text-gray-400" />
+                          <CalendarIcon className="mr-2 h-4 w-4 text-rose-500 dark:text-rose-400" />
                           {formData.openingDate
                             ? format(formData.openingDate, "dd/MM/yyyy")
                             : "Select date"}
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 dark:bg-gray-800">
+                      <PopoverContent className="w-auto p-0 dark:bg-gray-800 border dark:border-gray-700">
                         <Calendar
                           mode="single"
                           selected={formData.openingDate}
@@ -890,14 +875,10 @@ export default function EditOrderPage() {
                             handleDateChange("openingDate", date)
                           }
                           initialFocus
+                          className="dark:bg-gray-800 dark:text-gray-200"
                         />
                       </PopoverContent>
                     </Popover>
-                    {errors.openingDate && (
-                      <p className="text-sm text-red-500">
-                        {errors.openingDate}
-                      </p>
-                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -906,22 +887,22 @@ export default function EditOrderPage() {
                       className="text-gray-700 dark:text-gray-300 font-medium"
                     >
                       {formData.orderStatus === "Active"
-                        ? "Collection Date (Optional)"
+                        ? "Collection Date"
                         : "Closing Date*"}
                     </Label>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
                           variant="outline"
-                          className="w-full justify-start text-left font-normal border-gray-300 bg-white hover:bg-gray-50 hover:border-purple-300 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                          className="w-full justify-start text-left font-normal border-gray-300 bg-white hover:bg-gray-50 hover:border-purple-300 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:border-purple-400 dark:focus:border-purple-400 dark:focus:ring-purple-400 transition-colors"
                         >
-                          <CalendarIcon className="mr-2 h-4 w-4 text-purple-500 dark:text-gray-400" />
+                          <CalendarIcon className="mr-2 h-4 w-4 text-rose-500 dark:text-rose-400" />
                           {formData.closingDate
                             ? format(formData.closingDate, "dd/MM/yyyy")
                             : "Select date"}
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 dark:bg-gray-800">
+                      <PopoverContent className="w-auto p-0 dark:bg-gray-800 border dark:border-gray-700">
                         <Calendar
                           mode="single"
                           selected={formData.closingDate}
@@ -929,14 +910,10 @@ export default function EditOrderPage() {
                             handleDateChange("closingDate", date)
                           }
                           initialFocus
+                          className="dark:bg-gray-800 dark:text-gray-200"
                         />
                       </PopoverContent>
                     </Popover>
-                    {errors.closingDate && (
-                      <p className="text-sm text-red-500">
-                        {errors.closingDate}
-                      </p>
-                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -945,7 +922,7 @@ export default function EditOrderPage() {
                       className="text-gray-700 dark:text-gray-300 font-medium"
                     >
                       {formData.orderStatus === "Active"
-                        ? "Collection Time (Optional)"
+                        ? "Collection Time"
                         : "Closing Time*"}
                     </Label>
                     <div className="flex items-center">
@@ -956,15 +933,10 @@ export default function EditOrderPage() {
                         onChange={(e) =>
                           handleChange("closingTime", e.target.value)
                         }
-                        className="border-gray-300 bg-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                        className="border-gray-300 bg-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:focus:border-purple-400 dark:focus:ring-purple-400 transition-colors"
                       />
-                      <Clock className="ml-2 h-4 w-4 text-purple-500 dark:text-gray-400" />
+                      <Clock className="ml-2 h-4 w-4 text-rose-500 dark:text-rose-400" />
                     </div>
-                    {errors.closingTime && (
-                      <p className="text-sm text-red-500">
-                        {errors.closingTime}
-                      </p>
-                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -982,11 +954,6 @@ export default function EditOrderPage() {
                       }
                       placeholder="Select sales executive"
                     />
-                    {errors.salesExecutive && (
-                      <p className="text-sm text-red-500">
-                        {errors.salesExecutive}
-                      </p>
-                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -1002,18 +969,15 @@ export default function EditOrderPage() {
                       onChange={(value) => handleChange("location", value)}
                       placeholder="Select location"
                     />
-                    {errors.location && (
-                      <p className="text-sm text-red-500">{errors.location}</p>
-                    )}
                   </div>
                 </CardContent>
               </Card>
 
               {/* Customer Details */}
-              <Card className="dark:bg-gray-800 pt-0 bg-white border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden rounded-lg">
-                <div className="h-1 bg-teal-500 dark:bg-gray-700"></div>
-                <CardHeader className="bg-white dark:bg-gray-800">
-                  <CardTitle className="text-lg text-teal-700 dark:text-white">
+              <Card className="dark:bg-gray-800/80 dark:backdrop-blur-sm pt-0 bg-white border-gray-200 dark:border-gray-700 shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden rounded-lg">
+                <div className="h-1 bg-purple-500 dark:bg-purple-400"></div>
+                <CardHeader className="bg-white dark:bg-gray-800/0">
+                  <CardTitle className="text-lg text-purple-500 dark:text-purple-400">
                     Customer Information
                   </CardTitle>
                 </CardHeader>
@@ -1030,20 +994,17 @@ export default function EditOrderPage() {
                       value={formData.customer}
                       onChange={(e) => handleChange("customer", e.target.value)}
                       placeholder="Customer name"
-                      className="border-gray-300 bg-white focus:border-teal-500 focus:ring-1 focus:ring-teal-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                      className="border-gray-300 bg-white focus:border-teal-500 focus:ring-1 focus:ring-teal-500 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:placeholder:text-gray-400 dark:focus:border-teal-400 dark:focus:ring-teal-400 transition-colors"
                     />
-                    {errors.customer && (
-                      <p className="text-sm text-red-500">{errors.customer}</p>
-                    )}
                   </div>
                 </CardContent>
               </Card>
 
               {/* PCT Details */}
-              <Card className="dark:bg-gray-800 pt-0 bg-white border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden rounded-lg">
-                <div className="h-1 bg-amber-500 dark:bg-gray-700"></div>
-                <CardHeader className="bg-white dark:bg-gray-800">
-                  <CardTitle className="text-lg text-amber-700 dark:text-white">
+              <Card className="dark:bg-gray-800/80 dark:backdrop-blur-sm pt-0 bg-white border-gray-200 dark:border-gray-700 shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden rounded-lg">
+                <div className="h-1 bg-amber-500 dark:bg-amber-400"></div>
+                <CardHeader className="bg-white dark:bg-gray-800/0">
+                  <CardTitle className="text-lg text-amber-700 dark:text-amber-400">
                     PCT Details
                   </CardTitle>
                 </CardHeader>
@@ -1053,9 +1014,8 @@ export default function EditOrderPage() {
                       htmlFor="isPctSheetReceivedWithinTime"
                       className="text-gray-700 dark:text-gray-300 font-medium"
                     >
-                      {formData.orderStatus === "Active"
-                        ? "PCT Sheet Received Within Time (Optional)"
-                        : "PCT Sheet Received Within Time*"}
+                      PCT Sheet Received Within Time
+                      {formData.orderStatus === "Inactive" && "*"}
                     </Label>
                     <SearchableSelect
                       options={options.isPctSheetReceivedWithinTime}
@@ -1065,11 +1025,6 @@ export default function EditOrderPage() {
                       }
                       placeholder="Select option"
                     />
-                    {errors.isPctSheetReceivedWithinTime && (
-                      <p className="text-sm text-red-500">
-                        {errors.isPctSheetReceivedWithinTime}
-                      </p>
-                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -1077,9 +1032,8 @@ export default function EditOrderPage() {
                       htmlFor="pctStatus"
                       className="text-gray-700 dark:text-gray-300 font-medium"
                     >
-                      {formData.orderStatus === "Active"
-                        ? "PCT Status (Optional)"
-                        : "PCT Status*"}
+                      PCT Status
+                      {formData.orderStatus === "Inactive" && "*"}
                     </Label>
                     <SearchableSelect
                       options={options.pctStatus}
@@ -1087,18 +1041,15 @@ export default function EditOrderPage() {
                       onChange={(value) => handleChange("pctStatus", value)}
                       placeholder="Select PCT status"
                     />
-                    {errors.pctStatus && (
-                      <p className="text-sm text-red-500">{errors.pctStatus}</p>
-                    )}
                   </div>
                 </CardContent>
               </Card>
 
               {/* Order Status */}
-              <Card className="dark:bg-gray-800 pt-0 bg-white border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden rounded-lg">
-                <div className="h-1 bg-rose-500 dark:bg-gray-700"></div>
-                <CardHeader className="bg-white dark:bg-gray-800">
-                  <CardTitle className="text-lg text-rose-700 dark:text-white">
+              <Card className="dark:bg-gray-800/80 dark:backdrop-blur-sm pt-0 bg-white border-gray-200 dark:border-gray-700 shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden rounded-lg">
+                <div className="h-1 bg-teal-500 dark:bg-teal-400"></div>
+                <CardHeader className="bg-white dark:bg-gray-800/0">
+                  <CardTitle className="text-lg text-teal-700 dark:text-teal-400">
                     Order Status
                   </CardTitle>
                 </CardHeader>
@@ -1116,11 +1067,6 @@ export default function EditOrderPage() {
                       onChange={(value) => handleChange("orderStatus", value)}
                       placeholder="Select order status"
                     />
-                    {errors.orderStatus && (
-                      <p className="text-sm text-red-500">
-                        {errors.orderStatus}
-                      </p>
-                    )}
                   </div>
 
                   {/* Only show these fields if order status is Inactive */}
@@ -1139,11 +1085,6 @@ export default function EditOrderPage() {
                           onChange={(value) => handleShowUpChange(value)}
                           placeholder="Select option"
                         />
-                        {errors.isShowUp && (
-                          <p className="text-sm text-red-500">
-                            {errors.isShowUp}
-                          </p>
-                        )}
                       </div>
 
                       <div className="space-y-2">
@@ -1160,11 +1101,6 @@ export default function EditOrderPage() {
                           placeholder="Select option"
                           disabled={formData.isShowUp === "No"}
                         />
-                        {errors.isDeal && (
-                          <p className="text-sm text-red-500">
-                            {errors.isDeal}
-                          </p>
-                        )}
                       </div>
                     </>
                   )}
@@ -1173,10 +1109,10 @@ export default function EditOrderPage() {
 
               {/* Cancellation Details - Only show if order status is Inactive */}
               {showInactiveFields && (
-                <Card className="dark:bg-gray-800 pt-0 bg-white border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden rounded-lg">
-                  <div className="h-1 bg-blue-500 dark:bg-gray-700"></div>
-                  <CardHeader className="bg-white dark:bg-gray-800">
-                    <CardTitle className="text-lg text-blue-700 dark:text-white">
+                <Card className="dark:bg-gray-800/80 dark:backdrop-blur-sm pt-0 bg-white border-gray-200 dark:border-gray-700 shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden rounded-lg">
+                  <div className="h-1 bg-blue-500 dark:bg-blue-400"></div>
+                  <CardHeader className="bg-white dark:bg-gray-800/0">
+                    <CardTitle className="text-lg text-blue-700 dark:text-blue-400">
                       Cancellation Details
                     </CardTitle>
                   </CardHeader>
@@ -1195,11 +1131,6 @@ export default function EditOrderPage() {
                         placeholder="Select reason"
                         disabled={formData.isDeal === "Yes"}
                       />
-                      {errors.reasonForAction && (
-                        <p className="text-sm text-red-500">
-                          {errors.reasonForAction}
-                        </p>
-                      )}
                     </div>
 
                     <div className="space-y-2">
@@ -1216,13 +1147,8 @@ export default function EditOrderPage() {
                           handleChange("reasonDetail", e.target.value)
                         }
                         placeholder="Enter reason details or leave empty for 'No Reason Mentioned'"
-                        className="min-h-[80px] border-gray-300 bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                        className="min-h-[80px] border-gray-300 bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:placeholder:text-gray-400 dark:focus:border-blue-400 dark:focus:ring-blue-400 transition-colors"
                       />
-                      {errors.reasonDetail && (
-                        <p className="text-sm text-red-500">
-                          {errors.reasonDetail}
-                        </p>
-                      )}
                     </div>
 
                     <div className="space-y-2">
@@ -1239,31 +1165,18 @@ export default function EditOrderPage() {
                         placeholder="Select option"
                         disabled={formData.isDeal === "Yes"}
                       />
-                      {errors.isLossDeal && (
-                        <p className="text-sm text-red-500">
-                          {errors.isLossDeal}
-                        </p>
-                      )}
                     </div>
                   </CardContent>
                 </Card>
               )}
             </div>
 
-            <div className="mt-8 flex justify-end space-x-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => router.push("/view-orders")}
-                className="border-gray-300 bg-white hover:bg-gray-50 text-gray-700 hover:text-gray-900 dark:bg-gray-700 dark:text-white dark:border-gray-600"
-              >
-                Cancel
-              </Button>
+            <div className="mt-8 flex justify-end">
               <Button
                 type="submit"
                 size="lg"
-                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium px-8 py-2 rounded-md shadow-md hover:shadow-lg transition-all duration-300 dark:bg-primary dark:hover:bg-primary/90"
                 disabled={submitting}
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium px-8 py-2 rounded-md shadow-md hover:shadow-lg transition-all duration-300 dark:from-indigo-500 dark:to-purple-500 dark:hover:from-indigo-600 dark:hover:to-purple-600 dark:shadow-lg dark:shadow-indigo-500/20"
               >
                 {submitting ? (
                   <>

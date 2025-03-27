@@ -92,7 +92,7 @@ export default function LandingPage() {
             >
               We, At Hilton Car SuperMarket,{" "}
               <span className="italic">
-                "Creating An Effective Car-Buying Experience For Our Customers".
+                "Manage An Effective Car-Buying Experience For Our Customers".
               </span>
             </motion.h1>
             <motion.p
