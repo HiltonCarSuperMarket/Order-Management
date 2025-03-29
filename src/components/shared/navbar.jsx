@@ -84,6 +84,13 @@ const Navbar = () => {
           >
             Inactive Orders
           </Link>
+          <Link
+            href="/cancellation-report"
+            className="text-gray-700 hover:text-[#2C45AA] font-medium py-2 dark:text-gray-300 dark:hover:text-[#4e6cde]"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            Cancellation Report
+          </Link>
           {ADMIN_ROLE && (
             <Link
               href="/signup"
@@ -162,6 +169,15 @@ const Navbar = () => {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Inactive Orders
+                </Link>
+              }
+              {
+                <Link
+                  href="/cancellation-report"
+                  className="text-gray-700 hover:text-[#2C45AA] font-medium py-2 dark:text-gray-300 dark:hover:text-[#4e6cde]"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Cancellation Report
                 </Link>
               }
               {role && (
