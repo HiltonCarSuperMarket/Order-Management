@@ -11,7 +11,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import axios from "axios";
@@ -20,12 +20,6 @@ import { toast } from "sonner";
 import { ThemeToggle } from "../theme-toggle";
 import { Button } from "@/components/ui/button";
 import useAuth from "@/hooks/use-auth";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
 const navVariants = {
@@ -76,12 +70,48 @@ const mobileItemVariants = {
   },
 };
 
+const dropdownVariants = {
+  closed: {
+    opacity: 0,
+    y: -10,
+    scale: 0.95,
+    transition: {
+      duration: 0.2,
+      ease: "easeInOut",
+    },
+  },
+  open: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.3,
+      ease: "easeOut",
+      staggerChildren: 0.05,
+      delayChildren: 0.05,
+    },
+  },
+};
+
+const dropdownItemVariants = {
+  closed: { opacity: 0, x: -10 },
+  open: {
+    opacity: 1,
+    x: 0,
+    transition: {
+      type: "spring",
+      stiffness: 400,
+      damping: 25,
+    },
+  },
+};
+
 const NavLink = ({ href, children, onClick, className }) => (
   <Link
     href={href}
     className={cn(
-      "relative text-gray-700 hover:text-primary font-medium py-2 dark:text-gray-300 dark:hover:text-primary-foreground transition-colors duration-200",
-      "after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full dark:after:bg-primary-foreground",
+      "relative text-gray-700 hover:text-[#2C45AA] font-medium py-2 dark:text-gray-300 dark:hover:text-[#4e6cde] transition-colors duration-200",
+      "after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-[#2C45AA] after:transition-all after:duration-300 hover:after:w-full dark:after:bg-[#4e6cde]",
       className
     )}
     onClick={onClick}
@@ -93,6 +123,8 @@ const NavLink = ({ href, children, onClick, className }) => (
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [ordersDropdownOpen, setOrdersDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
   const router = useRouter();
   const role = useAuth();
   const ADMIN_ROLE = role === "ADMIN";
@@ -102,8 +134,19 @@ const Navbar = () => {
       setIsScrolled(window.scrollY > 10);
     };
 
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setOrdersDropdownOpen(false);
+      }
+    };
+
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
   const handleLogout = async () => {
@@ -148,36 +191,70 @@ const Navbar = () => {
           className="hidden md:flex items-center space-x-6"
           variants={navVariants}
         >
-          <motion.div variants={itemVariants}>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="flex items-center gap-1 px-3 cursor-pointer"
+          <motion.div
+            variants={itemVariants}
+            className="relative"
+            ref={dropdownRef}
+          >
+            <span
+              className={cn("flex items-center gap-1 px-3 cursor-pointer ")}
+              onClick={() => setOrdersDropdownOpen(!ordersDropdownOpen)}
+            >
+              <ShoppingCart className="h-4 w-4 mr-1" />
+              Orders
+              <motion.div
+                animate={{ rotate: ordersDropdownOpen ? 180 : 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <ChevronDown className="h-4 w-4" />
+              </motion.div>
+            </span>
+
+            <AnimatePresence>
+              {ordersDropdownOpen && (
+                <motion.div
+                  initial="closed"
+                  animate="open"
+                  exit="closed"
+                  variants={dropdownVariants}
+                  className="absolute top-full right-0 mt-1 w-56 rounded-md border bg-white shadow-lg dark:bg-gray-800 dark:border-gray-700 overflow-hidden z-50"
+                  style={{ transformOrigin: "top right" }}
                 >
-                  <ShoppingCart className="h-4 w-4 mr-1" />
-                  Orders
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
-                  <Link href="/register-order" className="cursor-pointer">
-                    Register Order
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/view-active-orders" className="cursor-pointer">
-                    Active Orders
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/view-orders" className="cursor-pointer">
-                    Inactive Orders
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  <motion.div className="py-1" variants={dropdownVariants}>
+                    <motion.div variants={dropdownItemVariants}>
+                      <Link
+                        href="/register-order"
+                        className="flex items-center px-4 py-2.5 text-sm hover:bg-[#2C45AA]/10 dark:hover:bg-[#4e6cde]/10 transition-colors"
+                        onClick={() => setOrdersDropdownOpen(false)}
+                      >
+                        <ShoppingCart className="h-4 w-4 mr-2 text-[#2C45AA] dark:text-[#4e6cde]" />
+                        Register Order
+                      </Link>
+                    </motion.div>
+                    <motion.div variants={dropdownItemVariants}>
+                      <Link
+                        href="/view-active-orders"
+                        className="flex items-center px-4 py-2.5 text-sm hover:bg-green-500/10 transition-colors"
+                        onClick={() => setOrdersDropdownOpen(false)}
+                      >
+                        <ShoppingCart className="h-4 w-4 mr-2 text-green-500" />
+                        Active Orders
+                      </Link>
+                    </motion.div>
+                    <motion.div variants={dropdownItemVariants}>
+                      <Link
+                        href="/view-orders"
+                        className="flex items-center px-4 py-2.5 text-sm hover:bg-gray-500/10 dark:hover:bg-gray-400/10 transition-colors"
+                        onClick={() => setOrdersDropdownOpen(false)}
+                      >
+                        <ShoppingCart className="h-4 w-4 mr-2 text-gray-500 dark:text-gray-400" />
+                        Inactive Orders
+                      </Link>
+                    </motion.div>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
 
           <motion.div variants={itemVariants}>
@@ -279,7 +356,7 @@ const Navbar = () => {
                     onClick={() => setMobileMenuOpen(false)}
                     className="flex items-center"
                   >
-                    <span className="bg-primary/10 dark:bg-primary-foreground/10 p-1 rounded-md mr-2">
+                    <span className="bg-[#2C45AA]/10 dark:bg-[#4e6cde]/10 p-1 rounded-md mr-2">
                       <ShoppingCart className="h-4 w-4 text-[#2C45AA] dark:text-[#4e6cde]" />
                     </span>
                     Register Order
